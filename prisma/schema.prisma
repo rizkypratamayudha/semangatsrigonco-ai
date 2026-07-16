@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  tier          String    @default("free")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  
+  widgets       Widget[]
+  
+  @@map("users")
+}
+
+model Widget {
+  id              String    @id @default(cuid())
+  name            String
+  welcomeMessage  String?   @map("welcome_message")
+  prompt          String?
+  primaryColor    String?   @map("primary_color")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  userId          String    @map("user_id")
+  user            User      @relation(fields: [userId], references: [id])
+  
+  @@map("widgets")
+}
