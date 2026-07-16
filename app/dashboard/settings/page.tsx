@@ -27,6 +27,9 @@ export default function SettingsPage() {
   const [weeklyReport, setWeeklyReport] = useState(true)
   const [marketingEmails, setMarketingEmails] = useState(false)
 
+  const [userTier, setUserTier] = useState('free')
+  const [upgrading, setUpgrading] = useState<string | null>(null)
+
   const supabase = createClient()
 
   useEffect(() => {
@@ -35,6 +38,17 @@ export default function SettingsPage() {
       if (authUser) {
         setFullName(authUser.user_metadata?.full_name || '')
         setEmail(authUser.email || '')
+
+        // Fetch user tier from database
+        const { data: userData } = await supabase
+          .from('users')
+          .select('tier')
+          .eq('id', authUser.id)
+          .single()
+        
+        if (userData) {
+          setUserTier(userData.tier)
+        }
       }
       try {
         const response = await fetch('/api/settings')
@@ -51,6 +65,24 @@ export default function SettingsPage() {
       setLoading(false)
     }
     loadData()
+
+    // Dynamically load Midtrans Snap script
+    const snapSrc = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true'
+      ? 'https://app.midtrans.com/snap/snap.js'
+      : 'https://app.sandbox.midtrans.com/snap/snap.js';
+    const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '';
+
+    const script = document.createElement('script');
+    script.src = snapSrc;
+    script.setAttribute('data-client-key', clientKey);
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      try {
+        document.body.removeChild(script);
+      } catch {}
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -123,6 +155,51 @@ export default function SettingsPage() {
       toast.error('Terjadi kesalahan. Coba lagi.')
     }
     setSaving(false)
+  }
+
+  async function handleUpgrade(targetTier: 'pro' | 'enterprise') {
+    setUpgrading(targetTier)
+    try {
+      const res = await fetch('/api/payment/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: targetTier }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || 'Gagal memulai transaksi')
+        setUpgrading(null)
+        return
+      }
+
+      if (data.token) {
+        if ((window as any).snap) {
+          (window as any).snap.pay(data.token, {
+            onSuccess: function (result: any) {
+              toast.success('Pembayaran sukses! Akun Anda sedang diperbarui.')
+              setTimeout(() => window.location.reload(), 1500)
+            },
+            onPending: function (result: any) {
+              toast.success('Menunggu pembayaran Anda. Silakan selesaikan pembayaran.')
+            },
+            onError: function (result: any) {
+              toast.error('Pembayaran gagal. Silakan coba lagi.')
+            },
+            onClose: function () {
+              toast('Pembayaran dibatalkan', { icon: 'ℹ️' })
+            }
+          })
+        } else {
+          toast.error('Gagal memuat modul pembayaran Midtrans')
+        }
+      } else {
+        toast.error('Token pembayaran tidak valid')
+      }
+    } catch (err) {
+      toast.error('Terjadi kesalahan koneksi')
+    } finally {
+      setUpgrading(null)
+    }
   }
 
   const tabs: { id: SettingsTab; label: string; iconPath: string }[] = [
@@ -425,6 +502,7 @@ export default function SettingsPage() {
                 <p className="text-sm text-muted-foreground mb-6">Pilih paket yang sesuai dengan kebutuhan bisnis Anda</p>
                 <div className="grid md:grid-cols-3 gap-5">
                   {/* Free Plan */}
+                  {/* Free Plan */}
                   <div className="p-6 bg-gray-50 rounded-2xl border border-border relative">
                     <div className="mb-4">
                       <h3 className="font-bold text-lg">Free</h3>
@@ -434,7 +512,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <ul className="space-y-2.5 text-sm mb-6">
-                      {['1 Widget', '100 Pesan/bulan', '1 Dokumen', 'Basic Support'].map((f) => (
+                      {['1 Widget', '50 Pesan/bulan', '1 Dokumen (.pdf / .txt)', 'Analytics & Histori Chat', 'Basic Support'].map((f) => (
                         <li key={f} className="flex items-center gap-2">
                           <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -443,9 +521,15 @@ export default function SettingsPage() {
                         </li>
                       ))}
                     </ul>
-                    <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
-                      ✓ Paket Saat Ini
-                    </div>
+                    {userTier === 'free' ? (
+                      <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
+                        ✓ Paket Saat Ini
+                      </div>
+                    ) : (
+                      <div className="px-4 py-2.5 bg-gray-100 text-gray-400 rounded-xl text-center text-sm font-medium">
+                        Paket Free
+                      </div>
+                    )}
                   </div>
 
                   {/* Pro Plan */}
@@ -461,7 +545,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <ul className="space-y-2.5 text-sm mb-6">
-                      {['5 Widget', '5.000 Pesan/bulan', '50 Dokumen', 'Priority Support', 'Analytics Lanjutan'].map((f) => (
+                      {['2 Widget', '200 Pesan/bulan', '3 Dokumen (.pdf / .txt)', 'Analytics & Histori Chat', 'Priority Support'].map((f) => (
                         <li key={f} className="flex items-center gap-2">
                           <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -470,12 +554,25 @@ export default function SettingsPage() {
                         </li>
                       ))}
                     </ul>
-                    <button
-                      onClick={() => toast.success('Fitur upgrade segera hadir! 🚀')}
-                      className="w-full py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-opacity shadow"
-                    >
-                      Upgrade Sekarang
-                    </button>
+                    {userTier === 'pro' ? (
+                      <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
+                        ✓ Paket Saat Ini
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleUpgrade('pro')}
+                        disabled={upgrading !== null}
+                        className="w-full py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-opacity shadow disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        {upgrading === 'pro' && (
+                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        )}
+                        {upgrading === 'pro' ? 'Memproses...' : 'Upgrade Sekarang'}
+                      </button>
+                    )}
                   </div>
 
                   {/* Enterprise Plan */}
@@ -488,7 +585,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <ul className="space-y-2.5 text-sm mb-6">
-                      {['Widget Unlimited', 'Pesan Unlimited', 'Dokumen Unlimited', 'Custom Branding', 'Dedicated Support'].map((f) => (
+                      {['3 Widget', 'Pesan Unlimited', '6 Dokumen (Semua format)', 'Analytics & Histori Chat', 'Akses Semua Format Dokumen'].map((f) => (
                         <li key={f} className="flex items-center gap-2">
                           <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -497,12 +594,25 @@ export default function SettingsPage() {
                         </li>
                       ))}
                     </ul>
-                    <button
-                      onClick={() => toast('Tim sales kami akan segera menghubungi Anda 📞', { icon: '📬' })}
-                      className="w-full py-3 border-2 border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors"
-                    >
-                      Hubungi Sales
-                    </button>
+                    {userTier === 'enterprise' ? (
+                      <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
+                        ✓ Paket Saat Ini
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleUpgrade('enterprise')}
+                        disabled={upgrading !== null}
+                        className="w-full py-3 border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        {upgrading === 'enterprise' && (
+                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        )}
+                        {upgrading === 'enterprise' ? 'Memproses...' : 'Upgrade Sekarang'}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

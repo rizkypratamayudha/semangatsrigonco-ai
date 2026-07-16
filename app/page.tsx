@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Script from 'next/script'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -72,7 +73,7 @@ export default async function Home() {
       period: '/bulan',
       highlight: false,
       badge: null,
-      features: ['1 Widget chatbot', '100 pesan/bulan', '1 Dokumen knowledge base', 'Embed ke website', 'Basic support via email'],
+      features: ['1 Widget chatbot', '50 pesan/bulan', '1 Dokumen (.pdf / .txt)', 'Analytics & Histori Chat', 'Embed ke website'],
       cta: 'Mulai Gratis',
       ctaHref: '/register',
       ctaStyle: 'border-2 border-border text-foreground hover:bg-muted',
@@ -83,7 +84,7 @@ export default async function Home() {
       period: '/bulan',
       highlight: true,
       badge: 'POPULER',
-      features: ['5 Widget chatbot', '5.000 pesan/bulan', '50 Dokumen knowledge base', 'Analytics lanjutan', 'Priority support', 'Custom AI instructions'],
+      features: ['2 Widget chatbot', '200 pesan/bulan', '3 Dokumen (.pdf / .txt)', 'Analytics & Histori Chat', 'Priority support'],
       cta: 'Pilih Paket Ini',
       ctaHref: '/register',
       ctaStyle: 'gradient-bg text-white hover:opacity-90',
@@ -94,9 +95,9 @@ export default async function Home() {
       period: '/bulan',
       highlight: false,
       badge: null,
-      features: ['Widget unlimited', 'Pesan unlimited', 'Dokumen unlimited', 'Custom branding', 'Dedicated support', 'API access'],
-      cta: 'Hubungi Sales',
-      ctaHref: 'mailto:sales@aiwidget.id',
+      features: ['3 Widget chatbot', 'Pesan Unlimited', '6 Dokumen (Semua format)', 'Analytics & Histori Chat', 'Akses Semua Format Dokumen'],
+      cta: 'Pilih Paket Ini',
+      ctaHref: '/register',
       ctaStyle: 'border-2 border-border text-foreground hover:bg-muted',
     },
   ]
@@ -141,7 +142,7 @@ export default async function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                 </svg>
               </div>
-              <span className="text-xl font-bold">AI Widget</span>
+              <span className="text-xl font-bold">ChatToko</span>
             </div>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium">
               <a href="#fitur" className="text-muted-foreground hover:text-foreground transition-colors">Fitur</a>
@@ -317,7 +318,7 @@ export default async function Home() {
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full mb-4">
               <span className="text-sm font-semibold text-green-700">Fitur Unggulan</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Kenapa Harus <span className="gradient-text">AI Widget</span>?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Kenapa Harus <span className="gradient-text">ChatToko</span>?</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Platform lengkap untuk membuat, mengelola, dan menganalisis chatbot AI berbasis pengetahuan bisnis Anda
             </p>
@@ -447,7 +448,7 @@ export default async function Home() {
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full mb-4">
               <span className="text-sm font-semibold text-green-700">Testimoni</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Kata Mereka tentang <span className="gradient-text">AI Widget</span></h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Kata Mereka tentang <span className="gradient-text">ChatToko</span></h2>
             <p className="text-muted-foreground text-lg">Dipercaya oleh pengguna dari berbagai jenis bisnis</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -511,7 +512,7 @@ export default async function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                   </svg>
                 </div>
-                <span className="text-xl font-bold">AI Widget</span>
+                <span className="text-xl font-bold">ChatToko</span>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Platform chatbot AI berbasis RAG untuk website Anda. Powered by Google Gemini.
@@ -546,12 +547,16 @@ export default async function Home() {
             </div>
           </div>
           <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-muted-foreground text-sm">© 2026 AI Widget Chatbot. All rights reserved.</p>
+            <p className="text-muted-foreground text-sm">© 2026 ChatToko. All rights reserved.</p>
             <p className="text-muted-foreground text-xs">Powered by Google Gemini AI · Supabase Vector DB · Next.js</p>
           </div>
         </div>
       </footer>
 
+      <Script
+        src="http://localhost:3000/api/widget/1ac30817-1b3f-49dc-b136-e9ef0176cc61"
+        strategy="afterInteractive"
+      />
     </div>
   )
 }

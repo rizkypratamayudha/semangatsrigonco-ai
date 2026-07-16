@@ -129,6 +129,52 @@ export async function GET(request: NextRequest) {
       })).sort((a, b) => b.conversations - a.conversations) || []
     }
 
+    // Fetch user messages for the retrieved conversations to aggregate top questions and keywords
+    const conversationIds = conversations?.map((c) => c.id) || []
+    let userMessages: { content: string }[] = []
+    if (conversationIds.length > 0) {
+      const { data: msgs } = await supabase
+        .from('messages')
+        .select('content')
+        .eq('role', 'user')
+        .in('conversation_id', conversationIds)
+      userMessages = msgs || []
+    }
+
+    // 1. Top Exact Questions (trimmed, lowercase, grouped)
+    const questionMap = new Map<string, number>()
+    userMessages.forEach((msg) => {
+      const clean = msg.content.trim().toLowerCase().replace(/[?.!]/g, '')
+      if (clean.length > 3) {
+        questionMap.set(clean, (questionMap.get(clean) || 0) + 1)
+      }
+    })
+    const topQuestions = Array.from(questionMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([question, count]) => ({ question, count }))
+
+    // 2. Top Keywords (split words, filter Indonesian stop words)
+    const stopWords = new Set([
+      'dan', 'di', 'ke', 'dari', 'yang', 'ini', 'itu', 'untuk', 'dengan', 'saya', 'anda', 'kamu', 'apa', 'bagaimana', 'kenapa', 'mengapa', 'adalah', 'yaitu', 'ada', 'bisa', 'buat', 'buatlah', 'mau', 'tanya', 'ingin', 'tahu', 'tentang', 'pada', 'atau', 'saja', 'ya', 'kah', 'lah', 'sih', 'dong', 'kok', 'tapi', 'namun', 'juga', 'tidak', 'ga', 'gk', 'lu', 'gue', 'kita', 'kami', 'mereka'
+    ])
+    const keywordMap = new Map<string, number>()
+    userMessages.forEach((msg) => {
+      const words = msg.content
+        .toLowerCase()
+        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ' ')
+        .split(/\s+/)
+      words.forEach((word) => {
+        if (word.length > 2 && !stopWords.has(word)) {
+          keywordMap.set(word, (keywordMap.get(word) || 0) + 1)
+        }
+      })
+    })
+    const topKeywords = Array.from(keywordMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([keyword, count]) => ({ keyword, count }))
+
     return NextResponse.json({
       stats: {
         totalConversations: totalConversations || 0,
@@ -139,6 +185,8 @@ export async function GET(request: NextRequest) {
       dailyStats,
       recentActivity,
       topWidgets: topWidgetsList,
+      topQuestions,
+      topKeywords,
     })
   } catch (error) {
     console.error('Analytics error:', error)

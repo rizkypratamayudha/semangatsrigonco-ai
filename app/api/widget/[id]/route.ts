@@ -155,7 +155,7 @@ export async function GET(
           </button>
         </fieldset>
       </div>
-      <div class="ftr">Powered by AI Widget Chatbot</div>
+      <div class="ftr">Powered by ChatToko</div>
     </div>
   \`;
 

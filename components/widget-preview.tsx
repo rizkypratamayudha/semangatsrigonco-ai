@@ -483,7 +483,7 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                 </svg>
               </button>
             </div>
-            <p className="text-[10px] text-center text-muted-foreground mt-2">Powered by AI Widget Chatbot</p>
+            <p className="text-[10px] text-center text-muted-foreground mt-2">Powered by ChatToko</p>
           </form>
         </div>
       )}

@@ -28,9 +28,17 @@ interface AnalyticsData {
     createdAt: string
   }>
   topWidgets: Array<{
-    id: string
-    name: string
-    conversations: number
+    id: string;
+    name: string;
+    conversations: number;
+  }>
+  topQuestions?: Array<{
+    question: string;
+    count: number;
+  }>
+  topKeywords?: Array<{
+    keyword: string;
+    count: number;
   }>
 }
 
@@ -67,6 +75,8 @@ export default function AnalyticsPage() {
   const dailyStats = data?.dailyStats || []
   const recentActivity = data?.recentActivity || []
   const topWidgets = data?.topWidgets || []
+  const topQuestions = data?.topQuestions || []
+  const topKeywords = data?.topKeywords || []
   const rangeLabel = timeRange === '7d' ? '7 hari' : timeRange === '30d' ? '30 hari' : '90 hari'
 
   // Format date labels for x-axis
@@ -387,6 +397,78 @@ export default function AnalyticsPage() {
           ) : (
             <ReactECharts option={messagesChartOption} style={{ height: '256px' }} />
           )}
+        </div>
+      </div>
+
+      {/* Popular Inquiries Row */}
+      <div className="grid lg:grid-cols-2 gap-6 mb-6">
+        {/* Top Questions */}
+        <div className="bg-white rounded-2xl border border-border p-6 flex flex-col justify-between">
+          <div>
+            <h3 className="text-lg font-semibold mb-1">Pertanyaan Terpopuler</h3>
+            <p className="text-xs text-muted-foreground mb-4">Pertanyaan paling sering ditanyakan oleh pengunjung ({rangeLabel} terakhir)</p>
+            {topQuestions.length === 0 ? (
+              <div className="py-12 text-center text-muted-foreground">
+                <svg className="w-10 h-10 mx-auto mb-3 opacity-25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-sm">Belum ada pertanyaan terekam</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {topQuestions.map((item: any, idx: number) => (
+                  <div key={idx} className="flex items-center justify-between p-3.5 bg-muted/50 rounded-xl hover:bg-muted transition-colors border border-border/30">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="w-6 h-6 rounded-full bg-green-50 text-green-700 border border-green-100 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                        {idx + 1}
+                      </span>
+                      <p className="text-sm font-medium text-foreground truncate">&ldquo;{item.question}&rdquo;</p>
+                    </div>
+                    <span className="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 shadow-sm">
+                      {item.count}x
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Top Keywords */}
+        <div className="bg-white rounded-2xl border border-border p-6 flex flex-col justify-between">
+          <div>
+            <h3 className="text-lg font-semibold mb-1">Kata Kunci Terpopuler</h3>
+            <p className="text-xs text-muted-foreground mb-4">Topik yang paling sering dibahas oleh pengunjung ({rangeLabel} terakhir)</p>
+            {topKeywords.length === 0 ? (
+              <div className="py-12 text-center text-muted-foreground">
+                <svg className="w-10 h-10 mx-auto mb-3 opacity-25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm">Belum ada topik terekam</p>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2.5 pt-2">
+                {topKeywords.map((item: any, idx: number) => {
+                  const style = idx === 0 
+                    ? 'bg-green-600 text-white border-green-600' 
+                    : idx < 3 
+                      ? 'bg-green-50 text-green-700 border-green-200' 
+                      : 'bg-muted text-muted-foreground border-border/40';
+                  return (
+                    <span
+                      key={idx}
+                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium border shadow-sm transition-all hover:scale-105 ${style}`}
+                    >
+                      🏷️ {item.keyword}
+                      <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${idx === 0 ? 'bg-white text-green-700' : 'bg-green-100 text-green-800'}`}>
+                        {item.count}
+                      </span>
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
