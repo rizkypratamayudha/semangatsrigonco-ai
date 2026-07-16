@@ -135,14 +135,50 @@ export default function WidgetList({ userId }: { userId: string }) {
     }
   }
 
-  function handleDuplicate(widget: Widget) {
-    const newWidget = {
-      ...widget,
-      id: crypto.randomUUID(),
-      name: `${widget.name} (Copy)`,
-      created_at: new Date().toISOString(),
+  async function handleDuplicate(widget: Widget) {
+    try {
+      // 1. Fetch user's tier
+      const { data: userData } = await supabase
+        .from('users')
+        .select('tier')
+        .eq('id', userId)
+        .maybeSingle()
+
+      const userTier = userData?.tier || 'free'
+      const widgetLimit = userTier === 'free' ? 1 : userTier === 'pro' ? 2 : 3
+
+      // 2. Check widget limit
+      if (widgets.length >= widgetLimit) {
+        toast.error(`Batas jumlah widget tercapai. Akun ${userTier.toUpperCase()} Anda hanya diizinkan memiliki maksimal ${widgetLimit} widget. Silakan upgrade plan Anda untuk menambah kuota!`)
+        return
+      }
+
+      // 3. Insert duplicate to Supabase
+      const { data: newWidget, error: insertError } = await supabase
+        .from('widgets')
+        .insert({
+          name: `${widget.name} (Copy)`,
+          welcome_message: widget.welcome_message,
+          prompt: widget.prompt,
+          primary_color: widget.primary_color,
+          user_id: userId,
+        })
+        .select()
+        .single()
+
+      if (insertError) {
+        toast.error('Gagal menduplikasi widget: ' + insertError.message)
+        return
+      }
+
+      if (newWidget) {
+        setWidgets((prev) => [newWidget, ...prev])
+        toast.success('Widget berhasil diduplikasi!')
+      }
+    } catch (err) {
+      console.error('Failed to duplicate widget:', err)
+      toast.error('Terjadi kesalahan saat menduplikasi widget.')
     }
-    setWidgets((prev) => [newWidget, ...prev])
   }
 
   function handleCopyEmbed(widget: Widget) {
@@ -306,6 +342,7 @@ export default function WidgetList({ userId }: { userId: string }) {
 
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
+            id="tour-create-widget"
             className="inline-flex items-center gap-2 px-5 py-2.5 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
           >
             {showCreateForm ? (
@@ -384,119 +421,125 @@ export default function WidgetList({ userId }: { userId: string }) {
           </div>
         ) : (
           <div className="grid gap-4">
-            {filteredWidgets.map((widget) => (
-              <div
-                key={widget.id}
-                className={`bg-white rounded-2xl border transition-all hover:shadow-md ${
-                  selectedWidgets.includes(widget.id) ? 'border-green-500 ring-2 ring-green-100' : 'border-border'
-                }`}
-              >
-                <div className="p-5">
-                  <div className="flex items-start gap-4">
-                    {/* Checkbox */}
-                    <input
-                      type="checkbox"
-                      checked={selectedWidgets.includes(widget.id)}
-                      onChange={() => toggleSelectWidget(widget.id)}
-                      className="w-5 h-5 mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                    />
+            {filteredWidgets.map((widget, index) => {
+              const isFirst = index === 0
+              return (
+                <div
+                  key={widget.id}
+                  id={isFirst ? 'tour-widget-card' : undefined}
+                  className={`bg-white rounded-2xl border transition-all hover:shadow-md ${
+                    selectedWidgets.includes(widget.id) ? 'border-green-500 ring-2 ring-green-100' : 'border-border'
+                  }`}
+                >
+                  <div className="p-5">
+                    <div className="flex items-start gap-4">
+                      {/* Checkbox */}
+                      <input
+                        type="checkbox"
+                        checked={selectedWidgets.includes(widget.id)}
+                        onChange={() => toggleSelectWidget(widget.id)}
+                        className="w-5 h-5 mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                      />
 
-                    {/* Widget Icon */}
-                    <div
-                      className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: widget.primary_color || '#25D366' }}
-                    >
-                      <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                      </svg>
-                    </div>
-
-                    {/* Widget Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{widget.name}</h3>
-                        <span className="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                          Aktif
-                        </span>
+                      {/* Widget Icon */}
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: widget.primary_color || '#25D366' }}
+                      >
+                        <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        </svg>
                       </div>
 
-                      {widget.welcome_message && (
-                        <p className="text-sm text-muted-foreground mb-2 truncate">
-                          &ldquo;{widget.welcome_message}&rdquo;
-                        </p>
-                      )}
+                      {/* Widget Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold text-lg">{widget.name}</h3>
+                          <span className="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                            Aktif
+                          </span>
+                        </div>
 
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
+                        {widget.welcome_message && (
+                          <p className="text-sm text-muted-foreground mb-2 truncate">
+                            &ldquo;{widget.welcome_message}&rdquo;
+                          </p>
+                        )}
+
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {new Date(widget.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <div
+                              className="w-3 h-3 rounded-full border border-gray-200"
+                              style={{ backgroundColor: widget.primary_color || '#25D366' }}
+                            />
+                            {widget.primary_color || '#25D366'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setExpandedWidgetId(expandedWidgetId === widget.id ? null : widget.id)}
+                          id={isFirst ? 'tour-doc-manage' : undefined}
+                          className={`px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold select-none border ${
+                            expandedWidgetId === widget.id
+                              ? 'bg-green-600 text-white border-green-600 shadow-sm hover:bg-green-700'
+                              : 'text-muted-foreground bg-white border-gray-200 hover:text-green-600 hover:bg-green-50/50 hover:border-green-200'
+                          }`}
+                          title="Kelola Knowledge Base / Dokumen RAG"
+                        >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
-                          {new Date(widget.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <div
-                            className="w-3 h-3 rounded-full border border-gray-200"
-                            style={{ backgroundColor: widget.primary_color || '#25D366' }}
-                          />
-                          {widget.primary_color || '#25D366'}
-                        </span>
+                          {expandedWidgetId === widget.id ? 'Tutup Dokumen' : 'Kelola Dokumen'}
+                        </button>
+                        <button
+                          onClick={() => setPreviewWidget(widget)}
+                          id={isFirst ? 'tour-preview-widget' : undefined}
+                          className="p-2.5 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                          title="Preview"
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => setEmbedGuideWidget(widget)}
+                          id={isFirst ? 'tour-copy-embed' : undefined}
+                          className="p-2.5 text-muted-foreground hover:text-green-600 hover:bg-green-50 rounded-xl transition-colors"
+                          title="Kode Embed / Integrasi"
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDuplicate(widget)}
+                          className="p-2.5 text-muted-foreground hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-colors"
+                          title="Duplikat"
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(widget.id)}
+                          className="p-2.5 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                          title="Hapus"
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setExpandedWidgetId(expandedWidgetId === widget.id ? null : widget.id)}
-                        className={`px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold select-none border ${
-                          expandedWidgetId === widget.id
-                            ? 'bg-green-600 text-white border-green-600 shadow-sm hover:bg-green-700'
-                            : 'text-muted-foreground bg-white border-gray-200 hover:text-green-600 hover:bg-green-50/50 hover:border-green-200'
-                        }`}
-                        title="Kelola Knowledge Base / Dokumen RAG"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        {expandedWidgetId === widget.id ? 'Tutup Dokumen' : 'Kelola Dokumen'}
-                      </button>
-                      <button
-                        onClick={() => setPreviewWidget(widget)}
-                        className="p-2.5 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                        title="Preview"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => setEmbedGuideWidget(widget)}
-                        className="p-2.5 text-muted-foreground hover:text-green-600 hover:bg-green-50 rounded-xl transition-colors"
-                        title="Kode Embed / Integrasi"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleDuplicate(widget)}
-                        className="p-2.5 text-muted-foreground hover:text-purple-600 hover:bg-purple-50 rounded-xl transition-colors"
-                        title="Duplikat"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(widget.id)}
-                        className="p-2.5 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
-                        title="Hapus"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
                   </div>
 
                   {/* Prompt Preview */}
@@ -547,7 +590,8 @@ export default function WidgetList({ userId }: { userId: string }) {
                   )}
                 </div>
               </div>
-            ))}
+            )
+          })}
           </div>
         )}
       </div>

@@ -6,6 +6,7 @@ import LogoutButton from '@/components/logout-button'
 
 interface SidebarProps {
   userEmail: string | null
+  userTier?: string
 }
 
 const navItems = [
@@ -42,14 +43,16 @@ const navItems = [
   },
 ]
 
-export default function Sidebar({ userEmail }: SidebarProps) {
+export default function Sidebar({ userEmail, userTier = 'free' }: SidebarProps) {
   const pathname = usePathname()
+
+  const formattedTier = userTier.charAt(0).toUpperCase() + userTier.slice(1) + ' Plan'
 
   return (
     <aside className="fixed top-0 left-0 w-64 h-screen bg-white border-r border-border flex flex-col z-50">
       {/* Logo */}
       <div className="p-6 border-b border-border">
-        <Link href="/" className="flex items-center gap-3">
+        <Link id="tour-logo" href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -64,10 +67,16 @@ export default function Sidebar({ userEmail }: SidebarProps) {
         <div className="space-y-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href
+            let itemId = undefined
+            if (item.href === '/dashboard/widgets') itemId = 'tour-nav-widgets'
+            else if (item.href === '/dashboard/analytics') itemId = 'tour-nav-analytics'
+            else if (item.href === '/dashboard/settings') itemId = 'tour-nav-settings'
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                id={itemId}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                   isActive
                     ? 'bg-green-50 text-green-700 font-medium'
@@ -86,13 +95,25 @@ export default function Sidebar({ userEmail }: SidebarProps) {
 
       {/* User Profile */}
       <div className="p-4 border-t border-border">
+        <button
+          id="tour-start-btn"
+          onClick={() => {
+            window.dispatchEvent(new Event('start-onboarding-tour'))
+          }}
+          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-green-700 bg-green-50 hover:bg-green-100/80 rounded-xl transition-colors mb-4 border border-green-200/40"
+        >
+          <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Mulai Panduan Baru
+        </button>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-semibold">
             {userEmail?.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium truncate">{userEmail}</div>
-            <div className="text-xs text-muted-foreground">Free Plan</div>
+            <div className="text-xs text-muted-foreground">{formattedTier}</div>
           </div>
         </div>
         <LogoutButton />

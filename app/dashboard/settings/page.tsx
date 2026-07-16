@@ -242,6 +242,7 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
+                  id={tab.id === 'billing' ? 'tour-settings-billing' : undefined}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     activeTab === tab.id
                       ? 'gradient-bg text-white shadow-md'
@@ -533,7 +534,7 @@ export default function SettingsPage() {
                   </div>
 
                   {/* Pro Plan */}
-                  <div className="p-6 bg-white border-2 border-green-500 rounded-2xl relative shadow-md">
+                  <div id="tour-billing-card-pro" className="p-6 bg-white border-2 border-green-500 rounded-2xl relative shadow-md">
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 gradient-bg text-white text-xs font-bold rounded-full shadow">
                       POPULER
                     </div>

@@ -309,7 +309,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div id="tour-analytics-summary" className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {[
           {
             label: 'Total Percakapan',
@@ -403,7 +403,7 @@ export default function AnalyticsPage() {
       {/* Popular Inquiries Row */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* Top Questions */}
-        <div className="bg-white rounded-2xl border border-border p-6 flex flex-col justify-between">
+        <div id="tour-analytics-popular" className="bg-white rounded-2xl border border-border p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-semibold mb-1">Pertanyaan Terpopuler</h3>
             <p className="text-xs text-muted-foreground mb-4">Pertanyaan paling sering ditanyakan oleh pengunjung ({rangeLabel} terakhir)</p>
@@ -435,7 +435,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Keywords */}
-        <div className="bg-white rounded-2xl border border-border p-6 flex flex-col justify-between">
+        <div id="tour-analytics-keywords" className="bg-white rounded-2xl border border-border p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-semibold mb-1">Kata Kunci Terpopuler</h3>
             <p className="text-xs text-muted-foreground mb-4">Topik yang paling sering dibahas oleh pengunjung ({rangeLabel} terakhir)</p>

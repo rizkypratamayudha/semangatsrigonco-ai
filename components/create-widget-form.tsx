@@ -96,11 +96,11 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} id="tour-create-form" className="space-y-5">
 
       <div className="grid md:grid-cols-2 gap-5">
         {/* Nama Widget */}
-        <div>
+        <div id="tour-form-name">
           <label className="block text-sm font-semibold mb-2">
             Nama Widget <span className="text-red-500">*</span>
           </label>
@@ -115,7 +115,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
         </div>
 
         {/* Warna Utama */}
-        <div>
+        <div id="tour-form-color">
           <label className="block text-sm font-semibold mb-2">Warna Utama</label>
           <div className="flex items-center gap-3">
             <input
@@ -137,7 +137,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
       </div>
 
       {/* Pesan Sambutan */}
-      <div>
+      <div id="tour-form-welcome">
         <label className="block text-sm font-semibold mb-2">Pesan Sambutan</label>
         <input
           type="text"
@@ -150,7 +150,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
       </div>
 
       {/* Prompt AI */}
-      <div>
+      <div id="tour-form-prompt">
         <label className="block text-sm font-semibold mb-2">Instruksi AI (Prompt)</label>
         <textarea
           value={prompt}
@@ -166,6 +166,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
+          id="tour-form-submit"
           disabled={loading}
           className="inline-flex items-center gap-2 px-6 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
