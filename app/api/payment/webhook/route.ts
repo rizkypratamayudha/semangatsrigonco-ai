@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       (transaction_status === 'capture' && fraud_status === 'accept');
 
     if (isSuccess) {
-      // orderId format: tier_userId_timestamp
+      // orderId format: tier_shortUserId_randomSuffix
       const parts = order_id.split('_');
       if (parts.length < 2) {
         console.error('Invalid order_id format:', order_id);
@@ -50,7 +50,12 @@ export async function POST(request: NextRequest) {
       }
 
       const tier = parts[0];
-      const userId = parts[1];
+      let userId = parts[1];
+
+      // Reconstruct UUID if it has no hyphens (32 chars)
+      if (userId.length === 32) {
+        userId = `${userId.slice(0, 8)}-${userId.slice(8, 12)}-${userId.slice(12, 16)}-${userId.slice(16, 20)}-${userId.slice(20)}`;
+      }
 
       if (tier !== 'pro' && tier !== 'enterprise') {
         console.error('Invalid plan tier in order_id:', tier);

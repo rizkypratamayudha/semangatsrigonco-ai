@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import LogoutButton from '@/components/logout-button'
 
 interface SidebarProps {
@@ -45,13 +46,43 @@ const navItems = [
 
 export default function Sidebar({ userEmail, userTier = 'free' }: SidebarProps) {
   const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const formattedTier = userTier.charAt(0).toUpperCase() + userTier.slice(1) + ' Plan'
 
-  return (
-    <aside className="fixed top-0 left-0 w-64 h-screen bg-white border-r border-border flex flex-col z-50">
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [mobileOpen])
+
+  // Dispatch event for dashboard layout to listen
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('sidebar-toggle', { detail: { open: mobileOpen } }))
+  }, [mobileOpen])
+
+  // Listen for toggle events from parent
+  useEffect(() => {
+    function handleToggle() {
+      setMobileOpen((prev) => !prev)
+    }
+    window.addEventListener('toggle-sidebar', handleToggle)
+    return () => window.removeEventListener('toggle-sidebar', handleToggle)
+  }, [])
+
+  const sidebarContent = (
+    <>
       {/* Logo */}
-      <div className="p-6 border-b border-border">
+      <div className="p-5 border-b border-border">
         <Link id="tour-logo" href="/" className="flex items-center gap-3">
           <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -64,7 +95,7 @@ export default function Sidebar({ userEmail, userTier = 'free' }: SidebarProps) 
 
       {/* Navigation */}
       <nav className="flex-1 p-4">
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {navItems.map((item) => {
             const isActive = pathname === item.href
             let itemId = undefined
@@ -118,6 +149,30 @@ export default function Sidebar({ userEmail, userTier = 'free' }: SidebarProps) 
         </div>
         <LogoutButton />
       </div>
-    </aside>
+    </>
+  )
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex fixed top-0 left-0 w-64 h-screen bg-white border-r border-border flex-col z-40">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Overlay */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Sidebar Panel */}
+          <aside className="absolute top-0 left-0 w-72 h-full bg-white border-r border-border flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+    </>
   )
 }

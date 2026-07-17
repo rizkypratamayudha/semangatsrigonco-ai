@@ -234,9 +234,29 @@ export default function SettingsPage() {
       </div>
 
       <div className="bg-white rounded-3xl border border-border shadow-sm overflow-hidden">
+        {/* Mobile Tabs - Horizontal Scroll */}
+        <div className="md:hidden flex overflow-x-auto border-b border-border p-2 gap-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                activeTab === tab.id
+                  ? 'gradient-bg text-white shadow-md'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.iconPath} />
+              </svg>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex min-h-[540px]">
-          {/* Left Navigation */}
-          <div className="w-56 border-r border-border p-4 flex flex-col">
+          {/* Desktop Left Navigation */}
+          <div className="hidden md:flex w-56 border-r border-border p-4 flex-col">
             <nav className="space-y-1 flex-1">
               {tabs.map((tab) => (
                 <button
@@ -271,7 +291,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Right Content */}
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 md:p-8">
 
             {/* Profile Tab */}
             {activeTab === 'profile' && (
@@ -501,7 +521,7 @@ export default function SettingsPage() {
               <div>
                 <h2 className="text-xl font-bold mb-2">Langganan</h2>
                 <p className="text-sm text-muted-foreground mb-6">Pilih paket yang sesuai dengan kebutuhan bisnis Anda</p>
-                <div className="grid md:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {/* Free Plan */}
                   {/* Free Plan */}
                   <div className="p-6 bg-gray-50 rounded-2xl border border-border relative">

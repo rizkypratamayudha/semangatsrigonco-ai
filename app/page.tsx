@@ -553,10 +553,6 @@ export default async function Home() {
         </div>
       </footer>
 
-      <Script
-        src="http://localhost:3000/api/widget/1ac30817-1b3f-49dc-b136-e9ef0176cc61"
-        strategy="afterInteractive"
-      />
     </div>
   )
 }

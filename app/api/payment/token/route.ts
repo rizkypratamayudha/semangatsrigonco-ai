@@ -28,8 +28,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment gateway misconfiguration' }, { status: 500 });
     }
 
-    // Generate unique order ID: tier_userId_timestamp
-    const orderId = `${tier}_${user.id}_${Date.now()}`;
+    // Remove hyphens from UUID to save space (36 -> 32 chars)
+    const shortUserId = user.id.replace(/-/g, '');
+    const randomSuffix = Math.random().toString(36).substring(2, 7).padEnd(5, '0');
+
+    // Generate unique order ID: tier_shortUserId_randomSuffix
+    // Max length: enterprise (10) + 1 + 32 + 1 + 5 = 49 chars (Midtrans limit is 50)
+    const orderId = `${tier}_${shortUserId}_${randomSuffix}`;
 
     // Prepare Midtrans request body
     const midtransPayload = {
@@ -60,6 +65,11 @@ export async function POST(request: NextRequest) {
 
     const authHeader = `Basic ${Buffer.from(serverKey + ':').toString('base64')}`;
 
+    console.log('[MIDTRANS REQUEST] URL:', midtransUrl);
+    console.log('[MIDTRANS REQUEST] isProduction:', isProduction);
+    console.log('[MIDTRANS REQUEST] Server Key Prefix:', serverKey.substring(0, 15));
+    console.log('[MIDTRANS REQUEST] Auth Header:', authHeader.substring(0, 20) + '...');
+
     const midtransResponse = await fetch(midtransUrl, {
       method: 'POST',
       headers: {
@@ -72,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     if (!midtransResponse.ok) {
       const errorText = await midtransResponse.text();
-      console.error('Midtrans API error:', errorText);
+      console.error('[MIDTRANS ERROR LOG] Midtrans API error:', errorText);
       return NextResponse.json({ error: 'Failed to initiate payment with Midtrans' }, { status: 502 });
     }
 

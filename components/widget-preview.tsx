@@ -362,7 +362,7 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4 pointer-events-none">
       {/* Chat Window */}
       {isChatOpen && (
-        <div className="bg-white rounded-3xl w-[380px] h-[550px] overflow-hidden shadow-2xl flex flex-col border border-gray-100 pointer-events-auto transition-all duration-300 transform scale-100 opacity-100 origin-bottom-right">
+        <div className="bg-white rounded-3xl w-[calc(100vw-2rem)] max-w-[380px] h-[min(550px,80vh)] overflow-hidden shadow-2xl flex flex-col border border-gray-100 pointer-events-auto transition-all duration-300 transform scale-100 opacity-100 origin-bottom-right">
           {/* Header */}
           <div className="p-4 flex items-center justify-between flex-shrink-0" style={{ backgroundColor: primaryColor }}>
             <div className="flex items-center gap-3">

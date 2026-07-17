@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/sidebar'
+import MobileHeader from '@/components/mobile-header'
 import OnboardingTour from '@/components/onboarding-tour'
 
 export default async function DashboardLayout({
@@ -30,7 +31,8 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
       <Sidebar userEmail={user.email ?? null} userTier={userTier} />
-      <main className="ml-64 p-8 min-h-screen">
+      <MobileHeader />
+      <main className="md:ml-64 p-4 md:p-8 pt-16 md:pt-8 min-h-screen">
         {children}
       </main>
       <OnboardingTour />
