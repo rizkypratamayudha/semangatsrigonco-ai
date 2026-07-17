@@ -113,13 +113,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: docError.message }, { status: 500 });
     }
 
-    // Return immediately, process in background
-    processInBackground(doc.id, tmpFile, file.type);
+    // Process document and generate embeddings (awaiting to prevent serverless function termination)
+    await processInBackground(doc.id, tmpFile, file.type);
+
+    // Fetch the final document status
+    const { data: finalDoc } = await supabase
+      .from('documents')
+      .select('status, error_message')
+      .eq('id', doc.id)
+      .single();
+
+    if (finalDoc?.status === 'error') {
+      return NextResponse.json({ 
+        id: doc.id,
+        filename: file.name,
+        status: 'error',
+        error: finalDoc.error_message || 'Processing failed'
+      }, { status: 400 });
+    }
 
     return NextResponse.json({
       id: doc.id,
       filename: file.name,
-      status: 'processing',
+      status: finalDoc?.status || 'ready',
     });
   } catch (error) {
     console.error('Upload error:', error);

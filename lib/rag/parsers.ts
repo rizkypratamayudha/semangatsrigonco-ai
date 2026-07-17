@@ -1,7 +1,7 @@
 import mammoth from 'mammoth';
 import { parse } from 'csv-parse/sync';
 import { readFileSync, existsSync } from 'fs';
-import { PDFParse } from 'pdf-parse';
+import type { PDFParse as PDFParseType } from 'pdf-parse';
 import path from 'path';
 import { pathToFileURL } from 'url';
 
@@ -15,6 +15,22 @@ export interface ParsedFile {
 }
 
 export async function parsePDF(input: string | Buffer): Promise<ParsedFile> {
+  // Polyfill DOM classes for pdf-parse/pdfjs-dist in serverless environments (Vercel Node runtime)
+  if (typeof global.DOMMatrix === 'undefined') {
+    (global as any).DOMMatrix = class DOMMatrix {} as any;
+  }
+  if (typeof global.Path2D === 'undefined') {
+    (global as any).Path2D = class Path2D {} as any;
+  }
+  if (typeof global.DOMPoint === 'undefined') {
+    (global as any).DOMPoint = class DOMPoint {} as any;
+  }
+  if (typeof global.DOMRect === 'undefined') {
+    (global as any).DOMRect = class DOMRect {} as any;
+  }
+
+  const { PDFParse } = await import('pdf-parse');
+
   // Resolve pdf.worker.mjs path to avoid Turbopack import resolution issues
   const pathsToTry = [
     'node_modules/pdf-parse/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',
@@ -41,7 +57,7 @@ export async function parsePDF(input: string | Buffer): Promise<ParsedFile> {
     }
   }
 
-  let parser: PDFParse | null = null;
+  let parser: any = null;
   try {
     const buffer = Buffer.isBuffer(input) ? input : readFileSync(input);
     parser = new PDFParse({ data: buffer });
