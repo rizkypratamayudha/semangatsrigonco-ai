@@ -25,6 +25,9 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
   const [primaryColor, setPrimaryColor] = useState('#25D366')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [sugQuestion1, setSugQuestion1] = useState('')
+  const [sugQuestion2, setSugQuestion2] = useState('')
+  const [sugQuestion3, setSugQuestion3] = useState('')
 
   const supabase = createClient()
 
@@ -60,6 +63,8 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
       return
     }
 
+    const suggestedQuestions = [sugQuestion1.trim(), sugQuestion2.trim(), sugQuestion3.trim()].filter(Boolean)
+
     const { data, error: insertError } = await supabase
       .from('widgets')
       .insert({
@@ -68,6 +73,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
         prompt: prompt.trim() || null,
         primary_color: primaryColor,
         user_id: userId,
+        suggested_questions: suggestedQuestions,
       })
       .select()
       .single()
@@ -162,6 +168,35 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
         <p className="text-xs text-muted-foreground mt-1.5">Instruksi untuk AI tentang bagaimana harus merespon</p>
       </div>
 
+      {/* Pertanyaan Saran */}
+      <div>
+        <label className="block text-sm font-semibold mb-2">Pertanyaan Saran (Maksimal 3)</label>
+        <div className="space-y-3">
+          <input
+            type="text"
+            value={sugQuestion1}
+            onChange={(e) => setSugQuestion1(e.target.value)}
+            placeholder="Saran Pertanyaan 1 (misal: Berapa harga paket layanan?)"
+            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+          />
+          <input
+            type="text"
+            value={sugQuestion2}
+            onChange={(e) => setSugQuestion2(e.target.value)}
+            placeholder="Saran Pertanyaan 2 (misal: Apakah ada garansi / free trial?)"
+            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+          />
+          <input
+            type="text"
+            value={sugQuestion3}
+            onChange={(e) => setSugQuestion3(e.target.value)}
+            placeholder="Saran Pertanyaan 3 (misal: Bagaimana cara mendaftar?)"
+            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+          />
+        </div>
+        <p className="text-xs text-muted-foreground mt-1.5">Pertanyaan cepat yang dapat diklik oleh pengguna saat membuka chat pertama kali</p>
+      </div>
+
       {/* Actions */}
       <div className="flex items-center gap-3 pt-2">
         <button
@@ -194,6 +229,9 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
             setWelcomeMessage('')
             setPrompt('')
             setPrimaryColor('#25D366')
+            setSugQuestion1('')
+            setSugQuestion2('')
+            setSugQuestion3('')
             setError(null)
           }}
           className="px-6 py-3 border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors"

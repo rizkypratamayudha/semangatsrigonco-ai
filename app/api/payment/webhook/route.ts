@@ -62,13 +62,19 @@ export async function POST(request: NextRequest) {
 
       console.log(`Upgrading user ${userId} to plan ${tier.toUpperCase()}`);
 
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
       // Update user's tier directly using Prisma (bypassing RLS)
       await prisma.user.update({
         where: { id: userId },
-        data: { tier: tier },
+        data: { 
+          tier: tier,
+          subscriptionExpiresAt: expiresAt,
+        },
       });
 
-      console.log(`Successfully upgraded user ${userId} to ${tier}`);
+      console.log(`Successfully upgraded user ${userId} to ${tier} (Expires: ${expiresAt.toISOString()})`);
     } else {
       console.log(`Transaction ${order_id} status is ${transaction_status}, no action taken.`);
     }

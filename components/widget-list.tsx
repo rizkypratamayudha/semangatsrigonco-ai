@@ -15,6 +15,7 @@ interface Widget {
   prompt: string | null
   primary_color: string | null
   created_at: string
+  suggested_questions?: string[]
 }
 
 type SortBy = 'newest' | 'oldest' | 'name'
@@ -33,6 +34,18 @@ export default function WidgetList({ userId }: { userId: string }) {
   const [embedGuideWidget, setEmbedGuideWidget] = useState<Widget | null>(null)
   const [expandedWidgetId, setExpandedWidgetId] = useState<string | null>(null)
   const [refreshTriggers, setRefreshTriggers] = useState<Record<string, number>>({})
+
+  // Edit widget states
+  const [editWidget, setEditWidget] = useState<Widget | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editWelcomeMessage, setEditWelcomeMessage] = useState('')
+  const [editPrompt, setEditPrompt] = useState('')
+  const [editPrimaryColor, setEditPrimaryColor] = useState('')
+  const [editSugQuestion1, setEditSugQuestion1] = useState('')
+  const [editSugQuestion2, setEditSugQuestion2] = useState('')
+  const [editSugQuestion3, setEditSugQuestion3] = useState('')
+  const [editLoading, setEditLoading] = useState(false)
+  const [generatingQuestions, setGeneratingQuestions] = useState(false)
 
   const supabase = createClient()
 
@@ -186,6 +199,81 @@ export default function WidgetList({ userId }: { userId: string }) {
     navigator.clipboard.writeText(embedCode)
     setCopiedId(widget.id)
     setTimeout(() => setCopiedId(null), 2000)
+  }
+
+  function handleEditClick(widget: Widget) {
+    setEditWidget(widget)
+    setEditName(widget.name)
+    setEditWelcomeMessage(widget.welcome_message || '')
+    setEditPrompt(widget.prompt || '')
+    setEditPrimaryColor(widget.primary_color || '#25D366')
+    const sug = widget.suggested_questions || []
+    setEditSugQuestion1(sug[0] || '')
+    setEditSugQuestion2(sug[1] || '')
+    setEditSugQuestion3(sug[2] || '')
+  }
+
+  async function handleSaveEdit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editWidget) return
+    setEditLoading(true)
+
+    const sug = [editSugQuestion1.trim(), editSugQuestion2.trim(), editSugQuestion3.trim()].filter(Boolean)
+
+    const { data, error } = await supabase
+      .from('widgets')
+      .update({
+        name: editName.trim(),
+        welcome_message: editWelcomeMessage.trim() || null,
+        prompt: editPrompt.trim() || null,
+        primary_color: editPrimaryColor,
+        suggested_questions: sug,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', editWidget.id)
+      .select()
+      .single()
+
+    if (error) {
+      toast.error('Gagal memperbarui widget: ' + error.message)
+      setEditLoading(false)
+      return
+    }
+
+    // Update state
+    setWidgets((prev) => prev.map((w) => (w.id === editWidget.id ? data : w)))
+    toast.success('Widget berhasil diperbarui!')
+    setEditWidget(null)
+    setEditLoading(false)
+  }
+
+  async function handleGenerateSugQuestions() {
+    if (!editWidget) return
+    setGeneratingQuestions(true)
+    try {
+      const response = await fetch(`/api/widgets/${editWidget.id}/generate-questions`, {
+        method: 'POST'
+      })
+      if (response.ok) {
+        const data = await response.json()
+        if (data.questions && Array.isArray(data.questions)) {
+          setEditSugQuestion1(data.questions[0] || '')
+          setEditSugQuestion2(data.questions[1] || '')
+          setEditSugQuestion3(data.questions[2] || '')
+          toast.success('Pertanyaan saran berhasil digenerate menggunakan AI!')
+        } else {
+          toast.error('Format data dari AI tidak valid.')
+        }
+      } else {
+        const data = await response.json()
+        toast.error(data.error || 'Gagal digenerate. Pastikan Anda telah mengunggah dokumen di widget ini.')
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Terjadi kesalahan koneksi.')
+    } finally {
+      setGeneratingQuestions(false)
+    }
   }
 
   function handleWidgetCreated(widget: Widget) {
@@ -501,6 +589,16 @@ export default function WidgetList({ userId }: { userId: string }) {
                           {expandedWidgetId === widget.id ? 'Tutup Dokumen' : 'Kelola Dokumen'}
                         </button>
                         <button
+                          onClick={() => handleEditClick(widget)}
+                          className="p-2.5 text-muted-foreground hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
+                          title="Pengaturan / Edit Widget"
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </button>
+                        <button
                           onClick={() => setPreviewWidget(widget)}
                           id={isFirst ? 'tour-preview-widget' : undefined}
                           className="p-2.5 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
@@ -755,6 +853,153 @@ export default function WidgetList({ userId }: { userId: string }) {
                 Selesai
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Edit Modal */}
+      {editWidget && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={() => setEditWidget(null)}>
+          <div className="bg-white p-6 rounded-3xl shadow-2xl max-w-lg w-full border border-gray-100 flex flex-col animate-in fade-in zoom-in duration-200 my-8" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-bold text-lg text-gray-800">Edit Pengaturan Widget</h3>
+              <button 
+                onClick={() => setEditWidget(null)}
+                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-gray-600">Nama Widget *</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2">
+                  <label className="block text-xs font-semibold mb-1 text-gray-600">Warna Utama</label>
+                  <input
+                    type="text"
+                    value={editPrimaryColor}
+                    onChange={(e) => setEditPrimaryColor(e.target.value)}
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="col-span-1">
+                  <label className="block text-xs font-semibold mb-1 text-gray-600">Warna</label>
+                  <input
+                    type="color"
+                    value={editPrimaryColor}
+                    onChange={(e) => setEditPrimaryColor(e.target.value)}
+                    className="w-full h-11 rounded-xl border border-border cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-gray-600">Pesan Sambutan</label>
+                <input
+                  type="text"
+                  value={editWelcomeMessage}
+                  onChange={(e) => setEditWelcomeMessage(e.target.value)}
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1 text-gray-600">Instruksi AI (Prompt)</label>
+                <textarea
+                  value={editPrompt}
+                  onChange={(e) => setEditPrompt(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-xs font-semibold text-gray-600">Pertanyaan Saran (Maksimal 3)</label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateSugQuestions}
+                    disabled={generatingQuestions}
+                    className="text-xs text-green-600 hover:text-green-700 font-semibold flex items-center gap-1 disabled:opacity-50 cursor-pointer select-none"
+                  >
+                    {generatingQuestions ? (
+                      <>
+                        <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Menganalisis Dokumen...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Generate dengan AI ✨
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={editSugQuestion1}
+                    onChange={(e) => setEditSugQuestion1(e.target.value)}
+                    placeholder="Saran Pertanyaan 1"
+                    className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                  <input
+                    type="text"
+                    value={editSugQuestion2}
+                    onChange={(e) => setEditSugQuestion2(e.target.value)}
+                    placeholder="Saran Pertanyaan 2"
+                    className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                  <input
+                    type="text"
+                    value={editSugQuestion3}
+                    onChange={(e) => setEditSugQuestion3(e.target.value)}
+                    placeholder="Saran Pertanyaan 3"
+                    className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setEditWidget(null)}
+                  className="flex-1 px-6 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-50 transition-all focus:outline-none cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={editLoading}
+                  className="flex-1 px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-sm font-semibold shadow-lg transition-all focus:outline-none flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  {editLoading && (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  )}
+                  {editLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

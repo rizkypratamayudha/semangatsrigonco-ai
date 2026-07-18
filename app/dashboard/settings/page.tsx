@@ -28,6 +28,7 @@ export default function SettingsPage() {
   const [marketingEmails, setMarketingEmails] = useState(false)
 
   const [userTier, setUserTier] = useState('free')
+  const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<string | null>(null)
   const [upgrading, setUpgrading] = useState<string | null>(null)
 
   const supabase = createClient()
@@ -39,15 +40,16 @@ export default function SettingsPage() {
         setFullName(authUser.user_metadata?.full_name || '')
         setEmail(authUser.email || '')
 
-        // Fetch user tier from database
+        // Fetch user tier and subscription details from database
         const { data: userData } = await supabase
           .from('users')
-          .select('tier')
+          .select('tier, subscription_expires_at')
           .eq('id', authUser.id)
           .single()
         
         if (userData) {
           setUserTier(userData.tier)
+          setSubscriptionExpiresAt(userData.subscription_expires_at || null)
         }
       }
       try {
@@ -576,8 +578,15 @@ export default function SettingsPage() {
                       ))}
                     </ul>
                     {userTier === 'pro' ? (
-                      <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
-                        ✓ Paket Saat Ini
+                      <div className="space-y-1">
+                        <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
+                          ✓ Paket Saat Ini
+                        </div>
+                        {subscriptionExpiresAt && (
+                          <p className="text-xs text-center text-muted-foreground mt-1">
+                            Aktif sampai: {new Date(subscriptionExpiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <button
@@ -616,8 +625,15 @@ export default function SettingsPage() {
                       ))}
                     </ul>
                     {userTier === 'enterprise' ? (
-                      <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
-                        ✓ Paket Saat Ini
+                      <div className="space-y-1">
+                        <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
+                          ✓ Paket Saat Ini
+                        </div>
+                        {subscriptionExpiresAt && (
+                          <p className="text-xs text-center text-muted-foreground mt-1">
+                            Aktif sampai: {new Date(subscriptionExpiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <button

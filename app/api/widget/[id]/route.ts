@@ -10,13 +10,22 @@ export async function GET(
   const supabase = await createClient();
   const { data: widget } = await supabase
     .from('widgets')
-    .select('name, welcome_message, primary_color')
+    .select('name, welcome_message, primary_color, suggested_questions')
     .eq('id', id)
     .single();
 
   const name = widget?.name || 'Chatbot';
   const welcome = widget?.welcome_message || 'Halo! Ada yang bisa dibantu? 👋';
   const color = widget?.primary_color || '#25D366';
+  const suggestedQuestions = widget?.suggested_questions || [];
+
+  function hexToRgb(hex: string) {
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    const fullHex = hex.replace(shorthandRegex, (_, r, g, b) => r + r + g + g + b + b);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '37, 211, 102';
+  }
+  const primaryRgbStr = hexToRgb(color);
 
   const script = `
 (function() {
@@ -25,6 +34,7 @@ export async function GET(
   var WIDGET_NAME = ${JSON.stringify(name)};
   var WELCOME_MSG = ${JSON.stringify(welcome)};
   var PRIMARY_COLOR = '${color}';
+  var SUGGESTED_QUESTIONS = ${JSON.stringify(suggestedQuestions)};
 
   var host = document.createElement('div');
   host.id = 'chatbot-widget-host';
@@ -124,6 +134,53 @@ export async function GET(
       .inp button:disabled { opacity: 0.5; cursor: not-allowed; }
 
       .ftr { text-align: center; padding: 8px; font-size: 10px; color: #999; flex-shrink: 0; }
+      .sug-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+        margin-left: 42px;
+        align-self: flex-start;
+        z-index: 10;
+        max-width: 92%;
+        animation: sugBounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        will-change: transform, opacity;
+      }
+      .sug-pill {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border: 1.5px solid rgba(${primaryRgbStr}, 0.22);
+        color: \${PRIMARY_COLOR};
+        border-radius: 20px;
+        border-bottom-left-radius: 6px;
+        padding: 8px 15px;
+        font-size: 11.5px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        font-weight: 600;
+        text-align: left;
+        line-height: 1.3;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .sug-pill:hover {
+        background: \${PRIMARY_COLOR};
+        color: white;
+        border-color: transparent;
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 8px 20px rgba(${primaryRgbStr}, 0.35);
+      }
+      .sug-pill:active {
+        transform: translateY(-1px) scale(0.98);
+      }
+      @keyframes sugBounceIn {
+        from { opacity: 0; transform: translateY(12px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
     </style>
 
     <div id="bubble">
@@ -386,7 +443,37 @@ export async function GET(
     if (t) t.remove();
   }
 
+  function removeSug() {
+    var sug = shadow.getElementById('sug-wrap');
+    if (sug) {
+      sug.style.transition = 'opacity 0.25s ease-out, transform 0.25s ease-out';
+      sug.style.opacity = '0';
+      sug.style.transform = 'translateY(5px)';
+      setTimeout(function() {
+        sug.remove();
+      }, 250);
+    }
+  }
+
   addMsg(WELCOME_MSG, false);
+
+  if (SUGGESTED_QUESTIONS && SUGGESTED_QUESTIONS.length > 0) {
+    var sugWrap = document.createElement('div');
+    sugWrap.className = 'sug-wrap';
+    sugWrap.id = 'sug-wrap';
+    SUGGESTED_QUESTIONS.forEach(function(q) {
+      var pill = document.createElement('button');
+      pill.className = 'sug-pill';
+      pill.textContent = q;
+      pill.onclick = function() {
+        inp.value = q;
+        doSend();
+      };
+      sugWrap.appendChild(pill);
+    });
+    msgs.appendChild(sugWrap);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
 
   bubble.onclick = function() {
     bubble.style.display = 'none';
@@ -409,6 +496,7 @@ export async function GET(
   async function doSend() {
     var text = inp.value.trim();
     if (!text) return;
+    removeSug();
     inp.value = '';
     send.disabled = true;
     addMsg(text, true);

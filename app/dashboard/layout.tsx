@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Sidebar from '@/components/sidebar'
 import MobileHeader from '@/components/mobile-header'
 import OnboardingTour from '@/components/onboarding-tour'
+import { checkAndApplySubscriptionExpiration } from '@/lib/subscription'
 
 export default async function DashboardLayout({
   children,
@@ -19,14 +20,8 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
-  // Fetch user tier from database
-  const { data: userData } = await supabase
-    .from('users')
-    .select('tier')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  const userTier = userData?.tier || 'free'
+  // Check and apply subscription expiration, then get current tier
+  const userTier = await checkAndApplySubscriptionExpiration(user.id)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">

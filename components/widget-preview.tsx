@@ -9,6 +9,7 @@ interface Widget {
   prompt: string | null
   primary_color: string | null
   created_at: string
+  suggested_questions?: string[]
 }
 
 interface Message {
@@ -280,9 +281,18 @@ function formatMessageContent(text: string) {
     });
   });
 }
-
 export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
   const primaryColor = widget.primary_color || '#25D366'
+  
+  // Helper to parse hex to RGB for Gen Z neon glow
+  const hexToRgb = (hex: string) => {
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    const fullHex = hex.replace(shorthandRegex, (_, r, g, b) => r + r + g + g + b + b);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fullHex);
+    return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '37, 211, 102';
+  };
+  const primaryRgb = hexToRgb(primaryColor);
+
   const [isChatOpen, setIsChatOpen] = useState(true)
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -300,11 +310,13 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isChatOpen])
 
-  async function handleSend() {
-    if (!inputValue.trim() || loading) return
+  async function handleSend(overrideMessage?: string) {
+    const userMessage = overrideMessage || inputValue.trim()
+    if (!userMessage || loading) return
 
-    const userMessage = inputValue.trim()
-    setInputValue('')
+    if (!overrideMessage) {
+      setInputValue('')
+    }
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
     setLoading(true)
 
@@ -437,6 +449,37 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                 </div>
               )
             })}
+            
+            {messages.length === 1 && widget.suggested_questions && widget.suggested_questions.length > 0 && (
+              <div className="flex flex-wrap gap-2 ml-10 max-w-[90%] mt-3 animate-in fade-in zoom-in-95 slide-in-from-bottom-3 duration-500 ease-out">
+                {widget.suggested_questions.map((q, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSend(q)}
+                    className="border-[1.5px] rounded-2xl rounded-bl-sm px-4 py-2 text-xs font-semibold text-left transition-all duration-300 shadow-sm w-fit cursor-pointer hover:-translate-y-0.75 hover:scale-[1.03] active:scale-[0.98] active:translate-y-0"
+                    style={{ 
+                      borderColor: `rgba(${primaryRgb}, 0.22)`, 
+                      color: primaryColor,
+                      backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = primaryColor;
+                      e.currentTarget.style.color = '#ffffff';
+                      e.currentTarget.style.borderColor = 'transparent';
+                      e.currentTarget.style.boxShadow = `0 8px 20px rgba(${primaryRgb}, 0.35)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+                      e.currentTarget.style.color = primaryColor;
+                      e.currentTarget.style.borderColor = `rgba(${primaryRgb}, 0.22)`;
+                      e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.03)';
+                    }}
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
             
             {loading && (
               <div className="flex gap-3">

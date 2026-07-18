@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateEmbedding, searchSimilarChunks } from '@/lib/rag/embeddings';
+import { checkAndApplySubscriptionExpiration } from '@/lib/subscription';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -52,14 +53,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch owner user's plan tier to check monthly message quota
-    const { data: ownerUser } = await supabase
-      .from('users')
-      .select('tier')
-      .eq('id', widget.user_id)
-      .single();
-
-    const userTier = ownerUser?.tier || 'free';
+    // Fetch owner user's plan tier to check monthly message quota, applying expiration check if needed
+    const userTier = await checkAndApplySubscriptionExpiration(widget.user_id);
     const messageLimit = userTier === 'free' ? 50 : userTier === 'pro' ? 200 : Infinity;
 
     if (messageLimit !== Infinity) {
