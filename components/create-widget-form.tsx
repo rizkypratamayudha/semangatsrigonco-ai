@@ -41,28 +41,6 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
       return
     }
 
-    // Fetch user's plan tier to restrict widget count
-    const { data: userData } = await supabase
-      .from('users')
-      .select('tier')
-      .eq('id', userId)
-      .single()
-
-    const userTier = userData?.tier || 'free'
-
-    const { count } = await supabase
-      .from('widgets')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-
-    const widgetLimit = userTier === 'free' ? 1 : userTier === 'pro' ? 2 : 3
-
-    if (count !== null && count >= widgetLimit) {
-      toast.error(`Batas jumlah widget tercapai. Akun ${userTier.toUpperCase()} Anda hanya diizinkan membuat maksimal ${widgetLimit} widget. Silakan upgrade plan Anda untuk menambah kuota!`)
-      setLoading(false)
-      return
-    }
-
     const suggestedQuestions = [sugQuestion1.trim(), sugQuestion2.trim(), sugQuestion3.trim()].filter(Boolean)
 
     const { data, error: insertError } = await supabase

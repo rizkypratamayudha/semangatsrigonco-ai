@@ -528,7 +528,7 @@ export default function OnboardingTour() {
     tour.addStep({
       id: 'nav-settings',
       title: 'Menu Pengaturan ⚙️',
-      text: 'Klik menu <strong>Pengaturan</strong> di sidebar untuk mengelola akun dan langganan Anda.',
+      text: 'Klik menu <strong>Pengaturan</strong> di sidebar untuk mengelola profil dan akun Anda.',
       attachTo: { element: '#tour-nav-settings', on: 'right' },
       buttons: [
         {
@@ -539,7 +539,7 @@ export default function OnboardingTour() {
         {
           text: 'Lanjut',
           action: () => {
-            navigateToPage('/dashboard/settings', '#tour-settings-billing', 'settings-billing')
+            navigateToPage('/dashboard/settings', '#tour-start-btn', 'finish')
           },
           classes: 'shepherd-button-primary',
         },
@@ -552,7 +552,7 @@ export default function OnboardingTour() {
               e.preventDefault()
               e.stopPropagation()
               link.removeEventListener('click', clickHandler)
-              navigateToPage('/dashboard/settings', '#tour-settings-billing', 'settings-billing')
+              navigateToPage('/dashboard/settings', '#tour-start-btn', 'finish')
             }
             link.addEventListener('click', clickHandler)
             ;(link as any)._tourHandler = clickHandler
@@ -565,75 +565,6 @@ export default function OnboardingTour() {
           }
         }
       }
-    })
-
-    // 17. Settings Billing Tab
-    tour.addStep({
-      id: 'settings-billing',
-      title: 'Tab Langganan & Billing 💳',
-      text: 'Klik tab <strong>Langganan</strong> untuk masuk ke pengaturan kuota pesan dan metode pembayaran.',
-      attachTo: { element: '#tour-settings-billing', on: 'right' },
-      beforeShowPromise: () => waitForElement('#tour-settings-billing'),
-      buttons: [
-        {
-          text: 'Kembali',
-          action: () => {
-            navigateToPage('/dashboard/analytics', '#tour-nav-settings', 'nav-settings')
-          },
-          classes: 'shepherd-button-secondary',
-        },
-        {
-          text: 'Lanjut',
-          action: () => {
-            const btn = document.querySelector('#tour-settings-billing') as HTMLButtonElement
-            if (btn) btn.click()
-            tour.show('billing-card-pro')
-          },
-          classes: 'shepherd-button-primary',
-        },
-      ],
-      when: {
-        show: () => {
-          const btn = document.querySelector('#tour-settings-billing')
-          if (btn) {
-            const handler = () => {
-              btn.removeEventListener('click', handler)
-              setTimeout(() => {
-                tour.show('billing-card-pro')
-              }, 150)
-            }
-            btn.addEventListener('click', handler)
-            ;(btn as any)._tourHandler = handler
-          }
-        },
-        hide: () => {
-          const btn = document.querySelector('#tour-settings-billing')
-          if (btn && (btn as any)._tourHandler) {
-            btn.removeEventListener('click', (btn as any)._tourHandler)
-          }
-        }
-      }
-    })
-
-    // 18. Upgrade Paket Billing
-    tour.addStep({
-      id: 'billing-card-pro',
-      title: 'Upgrade Paket Billing 🚀',
-      text: 'Lakukan upgrade kuota chat bulanan secara instan melalui pembayaran Midtrans Snap di sini.',
-      attachTo: { element: '#tour-billing-card-pro', on: 'left' },
-      beforeShowPromise: () => waitForElement('#tour-billing-card-pro'),
-      buttons: [
-        {
-          text: 'Kembali',
-          action: tour.back,
-          classes: 'shepherd-button-secondary',
-        },
-        {
-          text: 'Lanjut',
-          action: tour.next,
-          classes: 'shepherd-button-primary',
-        },
-      ],
     })
 
     // 19. Selesai

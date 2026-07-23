@@ -150,23 +150,7 @@ export default function WidgetList({ userId }: { userId: string }) {
 
   async function handleDuplicate(widget: Widget) {
     try {
-      // 1. Fetch user's tier
-      const { data: userData } = await supabase
-        .from('users')
-        .select('tier')
-        .eq('id', userId)
-        .maybeSingle()
-
-      const userTier = userData?.tier || 'free'
-      const widgetLimit = userTier === 'free' ? 1 : userTier === 'pro' ? 2 : 3
-
-      // 2. Check widget limit
-      if (widgets.length >= widgetLimit) {
-        toast.error(`Batas jumlah widget tercapai. Akun ${userTier.toUpperCase()} Anda hanya diizinkan memiliki maksimal ${widgetLimit} widget. Silakan upgrade plan Anda untuk menambah kuota!`)
-        return
-      }
-
-      // 3. Insert duplicate to Supabase
+      // Insert duplicate to Supabase
       const { data: newWidget, error: insertError } = await supabase
         .from('widgets')
         .insert({
