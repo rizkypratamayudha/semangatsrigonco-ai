@@ -175,7 +175,7 @@ export default function LoginPage() {
           <p className="mt-8 text-center text-muted-foreground">
             Belum punya akun?{' '}
             <Link href="/register" className="text-green-600 hover:text-green-700 font-semibold transition-colors">
-              Daftar gratis
+              Hubungi admin
             </Link>
           </p>
         </div>

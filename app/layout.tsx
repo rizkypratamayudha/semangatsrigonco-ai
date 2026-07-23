@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ChatToko — Chatbot AI untuk Website Anda",
-  description: "Buat chatbot AI berbasis dokumen untuk website UMKM Anda. Upload PDF, embed satu baris kode, pelanggan terlayani 24/7.",
+  title: "Srigonco AI — Asisten AI Internal Perusahaan",
+  description: "Asisten AI pintar berbasis pengetahuan internal perusahaan. Tanggapi pertanyaan staf dan pengunjung secara otomatis 24/7.",
 };
 
 export const viewport = {

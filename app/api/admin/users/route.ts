@@ -6,7 +6,6 @@ import { prisma } from '@/lib/prisma'
 function getAdminSupabase() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  // Supabase Auth Admin API requires the JWT service_role key (starting with "ey")
   if (serviceRoleKey && serviceRoleKey.startsWith('ey') && supabaseUrl) {
     return createSupabaseClient(supabaseUrl, serviceRoleKey, {
       auth: {
@@ -209,6 +208,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const userRole = role === 'admin' ? 'admin' : 'user'
+
+    // Protect active admin from accidentally demoting themselves to a normal user
+    if (id === currentUser.id && userRole !== 'admin') {
+      return NextResponse.json({ error: 'Anda tidak dapat menurunkan peran (demote) akun Admin milik Anda sendiri saat sedang aktif digunakan.' }, { status: 400 })
+    }
 
     // Update user in Prisma database
     const updatedUser = await prisma.user.update({

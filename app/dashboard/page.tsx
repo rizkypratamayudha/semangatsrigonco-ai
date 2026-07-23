@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         <div className="relative flex items-center justify-between gap-6">
           <div>
             <p className="text-white/70 text-sm font-medium mb-1">{greeting},</p>
-            <h1 className="text-3xl font-bold text-white mb-2 capitalize">{firstName} ðŸ‘‹</h1>
+            <h1 className="text-3xl font-bold text-white mb-2 capitalize">{firstName}👋</h1>
             <p className="text-white/70 text-sm max-w-md">
               Semua sistem berjalan normal. Anda memiliki <span className="font-semibold text-white">{widgetCount} widget</span> chatbot aktif siap melayani pengunjung.
             </p>

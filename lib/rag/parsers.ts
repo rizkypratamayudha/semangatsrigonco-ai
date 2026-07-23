@@ -1,86 +1,24 @@
+// @ts-ignore
+import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 import { parse } from 'csv-parse/sync';
-import { readFileSync, existsSync } from 'fs';
-import type { PDFParse as PDFParseType } from 'pdf-parse';
-import path from 'path';
-import { pathToFileURL } from 'url';
+import { readFileSync } from 'fs';
 
 export interface ParsedFile {
   text: string;
-  metadata: {
-    pageNumber?: number;
-    pageCount?: number;
-    recordCount?: number;
-  };
+  metadata?: Record<string, unknown>;
 }
 
 export async function parsePDF(input: string | Buffer): Promise<ParsedFile> {
-  // Polyfill DOM classes for pdf-parse/pdfjs-dist in serverless environments (Vercel Node runtime)
-  if (typeof global.DOMMatrix === 'undefined') {
-    (global as any).DOMMatrix = class DOMMatrix {} as any;
-  }
-  if (typeof global.Path2D === 'undefined') {
-    (global as any).Path2D = class Path2D {} as any;
-  }
-  if (typeof global.DOMPoint === 'undefined') {
-    (global as any).DOMPoint = class DOMPoint {} as any;
-  }
-  if (typeof global.DOMRect === 'undefined') {
-    (global as any).DOMRect = class DOMRect {} as any;
-  }
-
-  const { PDFParse } = await import('pdf-parse');
-
-  // Resolve pdf.worker.mjs path to avoid Turbopack import resolution issues
-  const pathsToTry = [
-    'node_modules/pdf-parse/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',
-    'node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',
-    'node_modules/pdf-parse/node_modules/pdfjs-dist/build/pdf.worker.mjs',
-    'node_modules/pdfjs-dist/build/pdf.worker.mjs'
-  ];
-
-  let workerPath = '';
-  for (const p of pathsToTry) {
-    const absPath = path.resolve(process.cwd(), p);
-    if (existsSync(absPath)) {
-      workerPath = absPath;
-      break;
-    }
-  }
-
-  if (workerPath) {
-    try {
-      const workerUrl = pathToFileURL(workerPath).href;
-      PDFParse.setWorker(workerUrl);
-    } catch (e) {
-      console.warn("Failed to set PDF worker path:", e);
-    }
-  }
-
-  let parser: any = null;
-  try {
-    const buffer = Buffer.isBuffer(input) ? input : readFileSync(input);
-    parser = new PDFParse({ data: buffer });
-    const textResult = await parser.getText();
-
-    return { 
-      text: textResult.text.trim(), 
-      metadata: { 
-        pageCount: textResult.pages.length 
-      } 
-    };
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`PDF parsing failed: ${error.message}`);
-    }
-    throw error;
-  } finally {
-    if (parser) {
-      try {
-        await parser.destroy();
-      } catch {}
-    }
-  }
+  const buffer = typeof input === 'string' ? readFileSync(input) : input;
+  const data = await pdf(buffer);
+  return {
+    text: data.text,
+    metadata: {
+      numpages: data.numpages,
+      info: data.info,
+    },
+  };
 }
 
 export async function parseDOCX(buffer: Buffer): Promise<ParsedFile> {
@@ -93,21 +31,41 @@ export function parseTXT(buffer: Buffer): ParsedFile {
 }
 
 export function parseCSV(buffer: Buffer): ParsedFile {
-  const content = buffer.toString('utf-8');
-  const records = parse(content, {
-    columns: true,
-    skip_empty_lines: true,
-    trim: true,
-  });
+  // Strip BOM (Byte Order Mark) from Excel CSV files
+  const content = buffer.toString('utf-8').replace(/^\uFEFF/, '');
 
-  const headers = Object.keys(records[0] || {});
-  const text = records
-    .map((record) =>
-      headers.map((h) => `${h}: ${(record as Record<string, string>)[h]}`).join(', ')
-    )
-    .join('\n\n');
+  try {
+    const records = parse(content, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+      relax_quotes: true,
+      relax_column_count: true,
+      escape: '\\',
+      delimiter: [',', ';', '\t'],
+    });
 
-  return { text, metadata: { recordCount: records.length } };
+    if (Array.isArray(records) && records.length > 0) {
+      const headers = Object.keys(records[0] || {});
+      const text = records
+        .map((record) =>
+          headers
+            .filter((h) => h && (record as Record<string, string>)[h])
+            .map((h) => `${h}: ${(record as Record<string, string>)[h]}`)
+            .join(', ')
+        )
+        .join('\n\n');
+
+      return { text, metadata: { recordCount: records.length } };
+    }
+  } catch (parseError) {
+    console.warn('CSV parser failed with strict mode, falling back to line parser:', parseError);
+  }
+
+  // Fallback parser for malformed CSV/Excel files
+  const lines = content.split(/\r?\n/).filter((line) => line.trim().length > 0);
+  const text = lines.join('\n');
+  return { text, metadata: { recordCount: lines.length } };
 }
 
 export function parseFile(input: string | Buffer, fileType: string): Promise<ParsedFile> {
