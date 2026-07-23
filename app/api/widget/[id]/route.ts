@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
@@ -7,17 +7,14 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const supabase = await createClient();
-  const { data: widget } = await supabase
-    .from('widgets')
-    .select('name, welcome_message, primary_color, suggested_questions')
-    .eq('id', id)
-    .single();
+  const widget = await prisma.widget.findUnique({
+    where: { id },
+  });
 
-  const name = widget?.name || 'Chatbot';
-  const welcome = widget?.welcome_message || 'Halo! Ada yang bisa dibantu? 👋';
-  const color = widget?.primary_color || '#25D366';
-  const suggestedQuestions = widget?.suggested_questions || [];
+  const name = widget?.name || 'Srigonco AI';
+  const welcome = widget?.welcomeMessage || 'Halo! Ada yang bisa dibantu? 👋';
+  const color = widget?.primaryColor || '#25D366';
+  const suggestedQuestions = widget?.suggestedQuestions || [];
 
   function hexToRgb(hex: string) {
     const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -48,8 +45,19 @@ export async function GET(
       * { box-sizing: border-box; margin: 0; padding: 0; }
       :host { all: initial; }
 
+      #overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.35);
+        z-index: 99997;
+        opacity: 0;
+        transition: opacity 0.2s ease-out;
+      }
+      #overlay.active { display: block; opacity: 1; }
+
       #bubble {
-        position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px;
+        width: 60px; height: 60px;
         background: \${PRIMARY_COLOR}; border-radius: 50%; cursor: pointer;
         display: flex; align-items: center; justify-content: center;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -65,6 +73,22 @@ export async function GET(
         overflow: hidden; flex-direction: column;
         border: 1px solid #f0f0f0;
         z-index: 99998;
+        will-change: transform;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      #window.expanded {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        bottom: auto !important;
+        right: auto !important;
+        transform: translate(-50%, -50%) !important;
+        width: 92vw !important;
+        max-width: 950px !important;
+        height: 85vh !important;
+        border-radius: 24px !important;
+        z-index: 99998 !important;
       }
 
       .hdr {
@@ -114,11 +138,8 @@ export async function GET(
         40% { transform: translateY(-6px); }
       }
 
-      .inp {
-        padding: 12px 16px; border-top: 1px solid #f0f0f0;
-        display: flex; gap: 8px; background: white; flex-shrink: 0;
-      }
-      .inp fieldset { border: none; display: flex; gap: 8px; flex: 1; }
+      .inp { padding: 12px 16px; border-top: 1px solid #f0f0f0; background: white; flex-shrink: 0; }
+      .inp fieldset { display: flex; gap: 8px; border: none; padding: 0; margin: 0; }
       .inp input {
         flex: 1; border: 1px solid #e5e7eb; border-radius: 12px;
         padding: 10px 14px; font-size: 13px; outline: none;
@@ -183,6 +204,7 @@ export async function GET(
       }
     </style>
 
+    <div id="overlay"></div>
     <div id="bubble">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -199,9 +221,14 @@ export async function GET(
             <div class="hdr-st">Online</div>
           </div>
         </div>
-        <button class="hdr-x" id="close">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 9l-7 7-7-7"></path></svg>
-        </button>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button class="hdr-x" id="expand-btn" title="Tampilan Semi-Fullscreen (Tengah)">
+            <svg id="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
+          </button>
+          <button class="hdr-x" id="close" title="Minimize Chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+        </div>
       </div>
       <div class="msgs" id="msgs"></div>
       <div class="inp">
@@ -212,135 +239,46 @@ export async function GET(
           </button>
         </fieldset>
       </div>
-      <div class="ftr">Powered by ChatToko</div>
+      <div class="ftr">Powered by Srigonco AI</div>
     </div>
   \`;
 
   var bubble = shadow.getElementById('bubble');
   var win = shadow.getElementById('window');
   var close = shadow.getElementById('close');
+  var expandBtn = shadow.getElementById('expand-btn');
+  var overlay = shadow.getElementById('overlay');
   var inp = shadow.getElementById('inp');
   var send = shadow.getElementById('send');
   var msgs = shadow.getElementById('msgs');
-  var mermaidId = 0;
+  var isExpanded = false;
 
-  function sanitizeMermaid(chart) {
-    var NL = String.fromCharCode(10);
-    return chart
-      .split(NL)
-      .map(function(line) {
-        var parts = line.split('-->');
-        var cleanParts = parts.map(function(part) {
-          var trimmed = part.trim();
-          var suffix = '';
-          
-          if (trimmed.endsWith(';')) {
-            trimmed = trimmed.slice(0, -1).trim();
-            suffix = ';';
-          }
-          
-          var leading = '';
-          for (var i = 0; i < part.length; i++) {
-            if (part[i] === ' ' || part[i] === '\t') {
-              leading += part[i];
-            } else {
-              break;
-            }
-          }
-          
-          // 1. Bracket shape: nodeId[label]
-          var idx1 = trimmed.indexOf('[');
-          if (idx1 > 0 && trimmed.endsWith(']')) {
-            var nodeId = trimmed.slice(0, idx1).trim();
-            var label = trimmed.slice(idx1 + 1, -1);
-            if (label.indexOf('"') !== 0) {
-              return leading + nodeId + '["' + label + '"]' + suffix;
-            }
-          }
-          
-          // 2. Curly shape: nodeId{label}
-          var idx2 = trimmed.indexOf('{');
-          if (idx2 > 0 && trimmed.endsWith('}')) {
-            var nodeId = trimmed.slice(0, idx2).trim();
-            var label = trimmed.slice(idx2 + 1, -1);
-            if (label.indexOf('"') !== 0) {
-              return leading + nodeId + '{"' + label + '"}' + suffix;
-            }
-          }
-          
-          // 3. Rounded shape: nodeId(label)
-          var idx3 = trimmed.indexOf('(');
-          if (idx3 > 0 && trimmed.endsWith(')')) {
-            var nodeId = trimmed.slice(0, idx3).trim();
-            var label = trimmed.slice(idx3 + 1, -1);
-            if (label.indexOf('"') !== 0) {
-              return leading + nodeId + '("' + label + '")' + suffix;
-            }
-          }
-          
-          return part;
-        });
-        
-        return cleanParts.join(' --> ');
-      })
-      .join(NL);
-  }
-
-  var mermaidLoaded = false;
-  var mermaidCallbacks = [];
-  function loadMermaid() {
-    if (window.mermaid) {
-      mermaidLoaded = true;
-      return;
-    }
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-    s.onload = function() {
-      window.mermaid.initialize({
-        startOnLoad: false,
-        theme: 'default',
-        securityLevel: 'loose',
-        fontFamily: 'inherit'
-      });
-      mermaidLoaded = true;
-      for (var i = 0; i < mermaidCallbacks.length; i++) {
-        mermaidCallbacks[i]();
+  if (expandBtn) {
+    expandBtn.onclick = function() {
+      isExpanded = !isExpanded;
+      if (isExpanded) {
+        win.classList.add('expanded');
+        overlay.classList.add('active');
+      } else {
+        win.classList.remove('expanded');
+        overlay.classList.remove('active');
       }
-      mermaidCallbacks = [];
     };
-    document.head.appendChild(s);
   }
-  loadMermaid();
 
-  function renderMermaidEl(text, el) {
-    var id = 'mermaidchart-' + Math.floor(Math.random() * 1000000);
-    var cleanText = sanitizeMermaid(text);
-    
-    function doRender() {
-      window.mermaid.render(id, cleanText).then(function(result) {
-        el.innerHTML = result.svg;
-        el.style.cssText = 'padding:8px;margin:8px 0;text-align:center;background:white;border-radius:8px;border:1px solid #e5e7eb;overflow-x:auto;max-width:100%;';
-      }).catch(function(err) {
-        console.error('Mermaid render error:', err);
-        el.style.whiteSpace = 'pre-wrap';
-        el.textContent = text;
-      });
-    }
-    
-    if (mermaidLoaded && window.mermaid) {
-      doRender();
-    } else {
-      mermaidCallbacks.push(doRender);
-    }
+  if (overlay) {
+    overlay.onclick = function() {
+      isExpanded = false;
+      win.classList.remove('expanded');
+      overlay.classList.remove('active');
+    };
   }
 
   function parseFormatting(text, parentEl) {
-    var TICK1 = String.fromCharCode(96);
     var NL = String.fromCharCode(10);
+    var TICK1 = String.fromCharCode(96);
     var re = new RegExp(
-      '(\\\\*\\\\*[\\\\s\\\\S]*?\\\\*\\\\*|\\\\*[^*' + NL + ']+\\\\*|' +
-      TICK1 + '[^' + TICK1 + NL + ']*' + TICK1 +
-      '|' + NL + ')',
+      '(' + NL + '|\\*\\*.*?\\*\\*|\\*.*?\\*|' + TICK1 + '.*?' + TICK1 + ')',
       'g'
     );
     var parts = text.split(re);
@@ -390,7 +328,6 @@ export async function GET(
         block.style.cssText = 'background:#f4f4f4;padding:12px;border-radius:8px;font-size:11px;overflow-x:auto;margin:8px 0;border:1px solid #e5e7eb;white-space:pre-wrap;';
         block.textContent = code;
         el.appendChild(block);
-        renderMermaidEl(code, block);
       } else if (part) {
         parseFormatting(part, el);
       }
@@ -398,6 +335,7 @@ export async function GET(
   }
 
   function addMsg(text, isUser) {
+    removeSug();
     if (isUser) {
       var wrap = document.createElement('div');
       wrap.style.cssText = 'display:flex;justify-content:flex-end;';
@@ -416,8 +354,8 @@ export async function GET(
       m.className = 'm mb';
       wrap.appendChild(ic);
       wrap.appendChild(m);
-      msgs.appendChild(wrap); // append to DOM FIRST
-      setContent(m, text);    // THEN parse & render content (mermaid needs live DOM)
+      msgs.appendChild(wrap);
+      setContent(m, text);
     }
     msgs.scrollTop = msgs.scrollHeight;
   }
@@ -484,6 +422,11 @@ export async function GET(
   close.onclick = function() {
     win.style.display = 'none';
     bubble.style.display = 'flex';
+    if (isExpanded) {
+      isExpanded = false;
+      win.classList.remove('expanded');
+      if (overlay) overlay.classList.remove('active');
+    }
   };
 
   inp.oninput = function() {
@@ -496,7 +439,7 @@ export async function GET(
   async function doSend() {
     var text = inp.value.trim();
     if (!text) return;
-    removeSug();
+
     inp.value = '';
     send.disabled = true;
     addMsg(text, true);

@@ -571,7 +571,7 @@ export default function OnboardingTour() {
     tour.addStep({
       id: 'finish',
       title: 'Panduan Selesai! 🎉',
-      text: 'Luar biasa! Sekarang Anda telah siap menggunakan ChatToko secara optimal. Klik tombol <strong>Mulai Panduan Baru</strong> di sidebar kapan saja jika ingin mengulang tur ini.',
+      text: 'Luar biasa! Sekarang Anda telah siap menggunakan Srigonco AI secara optimal. Klik tombol <strong>Mulai Panduan Baru</strong> di sidebar kapan saja jika ingin mengulang tur ini.',
       attachTo: { element: '#tour-start-btn', on: 'top' },
       beforeShowPromise: () => waitForElement('#tour-start-btn'),
       buttons: [

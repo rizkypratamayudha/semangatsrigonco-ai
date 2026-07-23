@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -43,40 +43,45 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
 
     const suggestedQuestions = [sugQuestion1.trim(), sugQuestion2.trim(), sugQuestion3.trim()].filter(Boolean)
 
-    const { data, error: insertError } = await supabase
-      .from('widgets')
-      .insert({
-        name: name.trim(),
-        welcome_message: welcomeMessage.trim() || null,
-        prompt: prompt.trim() || null,
-        primary_color: primaryColor,
-        user_id: userId,
-        suggested_questions: suggestedQuestions,
+    try {
+      const response = await fetch('/api/widgets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          welcome_message: welcomeMessage.trim() || null,
+          prompt: prompt.trim() || null,
+          primary_color: primaryColor,
+          suggested_questions: suggestedQuestions,
+        }),
       })
-      .select()
-      .single()
 
-    if (insertError) {
-      console.error('Insert error:', insertError)
-      toast.error(insertError.message)
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error(data.error || 'Gagal membuat widget')
+        setLoading(false)
+        return
+      }
+
+      console.log('Widget created:', data)
+      toast.success('Widget berhasil dibuat!')
+      onCreated(data as Widget)
+      setName('')
+      setWelcomeMessage('')
+      setPrompt('')
+      setPrimaryColor('#25D366')
+      setSugQuestion1('')
+      setSugQuestion2('')
+      setSugQuestion3('')
+    } catch (err) {
+      console.error('Insert error:', err)
+      toast.error('Terjadi kesalahan koneksi saat membuat widget')
+    } finally {
       setLoading(false)
-      return
     }
-
-    if (!data) {
-      toast.error('Gagal membuat widget - data tidak dikembalikan')
-      setLoading(false)
-      return
-    }
-
-    console.log('Widget created:', data)
-    toast.success('Widget berhasil dibuat!')
-    onCreated(data as Widget)
-    setName('')
-    setWelcomeMessage('')
-    setPrompt('')
-    setPrimaryColor('#25D366')
-    setLoading(false)
   }
 
   return (
@@ -127,7 +132,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
           type="text"
           value={welcomeMessage}
           onChange={(e) => setWelcomeMessage(e.target.value)}
-          placeholder="Contoh: Halo! Ada yang bisa dibantu? ðŸ‘‹"
+          placeholder="Contoh: Halo! Ada yang bisa dibantu? 👋"
           className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
         />
         <p className="text-xs text-muted-foreground mt-1.5">Pesan yang muncul saat pertama kali user membuka chat</p>

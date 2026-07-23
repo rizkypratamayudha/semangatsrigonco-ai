@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -53,18 +53,20 @@ export default function WidgetList({ userId }: { userId: string }) {
     let cancelled = false
 
     async function fetchWidgets() {
-      const { data, error } = await supabase
-        .from('widgets')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-
-      if (!cancelled) {
-        if (error) {
-          console.error('Fetch widgets error:', error)
+      try {
+        const res = await fetch('/api/widgets')
+        if (res.ok) {
+          const data = await res.json()
+          if (!cancelled) {
+            setWidgets(Array.isArray(data) ? data : [])
+          }
         }
-        setWidgets(data || [])
-        setLoading(false)
+      } catch (error) {
+        console.error('Fetch widgets error:', error)
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
 
@@ -73,19 +75,18 @@ export default function WidgetList({ userId }: { userId: string }) {
     return () => {
       cancelled = true
     }
-  }, [userId, supabase])
+  }, [userId])
 
   async function refetchWidgets() {
-    const { data, error } = await supabase
-      .from('widgets')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-
-    if (error) {
+    try {
+      const res = await fetch('/api/widgets')
+      if (res.ok) {
+        const data = await res.json()
+        setWidgets(Array.isArray(data) ? data : [])
+      }
+    } catch (error) {
       console.error('Refetch widgets error:', error)
     }
-    setWidgets(data || [])
   }
 
   const filteredWidgets = useMemo(() => {
@@ -125,52 +126,57 @@ export default function WidgetList({ userId }: { userId: string }) {
   }
 
   async function executeDelete(id: string) {
-    const { error } = await supabase.from('widgets').delete().eq('id', id)
-
-    if (!error) {
-      setWidgets((prev) => prev.filter((w) => w.id !== id))
-      setSelectedWidgets((prev) => prev.filter((wid) => wid !== id))
-      toast.success('Widget berhasil dihapus!')
-    } else {
-      toast.error('Gagal menghapus widget: ' + error.message)
+    try {
+      const res = await fetch(`/api/widgets?id=${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setWidgets((prev) => prev.filter((w) => w.id !== id))
+        setSelectedWidgets((prev) => prev.filter((wid) => wid !== id))
+        toast.success('Widget berhasil dihapus!')
+      } else {
+        const data = await res.json()
+        toast.error(data.error || 'Gagal menghapus widget')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan koneksi saat menghapus widget')
     }
   }
 
   async function executeBulkDelete() {
-    const { error } = await supabase.from('widgets').delete().in('id', selectedWidgets)
-
-    if (!error) {
+    try {
+      let successCount = 0
+      for (const id of selectedWidgets) {
+        const res = await fetch(`/api/widgets?id=${id}`, { method: 'DELETE' })
+        if (res.ok) successCount++
+      }
       setWidgets((prev) => prev.filter((w) => !selectedWidgets.includes(w.id)))
       setSelectedWidgets([])
-      toast.success('Widget terpilih berhasil dihapus!')
-    } else {
-      toast.error('Gagal menghapus beberapa widget: ' + error.message)
+      toast.success(`${successCount} widget terpilih berhasil dihapus!`)
+    } catch {
+      toast.error('Terjadi kesalahan saat menghapus widget terpilih')
     }
   }
 
   async function handleDuplicate(widget: Widget) {
     try {
-      // Insert duplicate to Supabase
-      const { data: newWidget, error: insertError } = await supabase
-        .from('widgets')
-        .insert({
+      const res = await fetch('/api/widgets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: `${widget.name} (Copy)`,
           welcome_message: widget.welcome_message,
           prompt: widget.prompt,
           primary_color: widget.primary_color,
-          user_id: userId,
-        })
-        .select()
-        .single()
+          suggested_questions: widget.suggested_questions,
+        }),
+      })
 
-      if (insertError) {
-        toast.error('Gagal menduplikasi widget: ' + insertError.message)
-        return
-      }
-
-      if (newWidget) {
+      if (res.ok) {
+        const newWidget = await res.json()
         setWidgets((prev) => [newWidget, ...prev])
         toast.success('Widget berhasil diduplikasi!')
+      } else {
+        const data = await res.json()
+        toast.error(data.error || 'Gagal menduplikasi widget')
       }
     } catch (err) {
       console.error('Failed to duplicate widget:', err)
@@ -204,31 +210,34 @@ export default function WidgetList({ userId }: { userId: string }) {
 
     const sug = [editSugQuestion1.trim(), editSugQuestion2.trim(), editSugQuestion3.trim()].filter(Boolean)
 
-    const { data, error } = await supabase
-      .from('widgets')
-      .update({
-        name: editName.trim(),
-        welcome_message: editWelcomeMessage.trim() || null,
-        prompt: editPrompt.trim() || null,
-        primary_color: editPrimaryColor,
-        suggested_questions: sug,
-        updated_at: new Date().toISOString()
+    try {
+      const res = await fetch('/api/widgets', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editWidget.id,
+          name: editName.trim(),
+          welcome_message: editWelcomeMessage.trim() || null,
+          prompt: editPrompt.trim() || null,
+          primary_color: editPrimaryColor,
+          suggested_questions: sug,
+        }),
       })
-      .eq('id', editWidget.id)
-      .select()
-      .single()
 
-    if (error) {
-      toast.error('Gagal memperbarui widget: ' + error.message)
+      const data = await res.json()
+
+      if (res.ok) {
+        setWidgets((prev) => prev.map((w) => (w.id === editWidget.id ? data : w)))
+        toast.success('Widget berhasil diperbarui!')
+        setEditWidget(null)
+      } else {
+        toast.error(data.error || 'Gagal memperbarui widget')
+      }
+    } catch {
+      toast.error('Terjadi kesalahan koneksi saat menyimpan perubahan')
+    } finally {
       setEditLoading(false)
-      return
     }
-
-    // Update state
-    setWidgets((prev) => prev.map((w) => (w.id === editWidget.id ? data : w)))
-    toast.success('Widget berhasil diperbarui!')
-    setEditWidget(null)
-    setEditLoading(false)
   }
 
   async function handleGenerateSugQuestions() {
@@ -288,7 +297,7 @@ export default function WidgetList({ userId }: { userId: string }) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="flex items-center gap-3 text-muted-foreground">
-          <svg className="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 animate-spin text-[#4D0D0D]" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
