@@ -33,6 +33,13 @@ export async function GET(
   var PRIMARY_COLOR = '${color}';
   var SUGGESTED_QUESTIONS = ${JSON.stringify(suggestedQuestions)};
 
+  if (!window.srigoncoEchartsLoaded) {
+    window.srigoncoEchartsLoaded = true;
+    var sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js';
+    document.head.appendChild(sc);
+  }
+
   var host = document.createElement('div');
   host.id = 'chatbot-widget-host';
   host.style.cssText = 'all:initial;position:fixed !important;bottom:24px !important;right:24px !important;z-index:99999 !important;font-family:system-ui,-apple-system,sans-serif;display:block !important;visibility:visible !important;';
@@ -252,6 +259,17 @@ export async function GET(
   var send = shadow.getElementById('send');
   var msgs = shadow.getElementById('msgs');
   var isExpanded = false;
+  var chartInstances = [];
+
+  function resizeAllCharts() {
+    setTimeout(function() {
+      chartInstances.forEach(function(c) {
+        if (c && typeof c.resize === 'function') {
+          c.resize();
+        }
+      });
+    }, 220);
+  }
 
   if (expandBtn) {
     expandBtn.onclick = function() {
@@ -263,6 +281,7 @@ export async function GET(
         win.classList.remove('expanded');
         overlay.classList.remove('active');
       }
+      resizeAllCharts();
     };
   }
 
@@ -271,14 +290,20 @@ export async function GET(
       isExpanded = false;
       win.classList.remove('expanded');
       overlay.classList.remove('active');
+      resizeAllCharts();
     };
   }
+
+  window.addEventListener('resize', resizeAllCharts);
 
   function parseFormatting(text, parentEl) {
     var NL = String.fromCharCode(10);
     var TICK1 = String.fromCharCode(96);
+    var BACKSLASH = String.fromCharCode(92);
+    var ESC_STAR = BACKSLASH + '*';
+    var ESC_DOUBLE_STAR = ESC_STAR + ESC_STAR;
     var re = new RegExp(
-      '(' + NL + '|\\*\\*.*?\\*\\*|\\*.*?\\*|' + TICK1 + '.*?' + TICK1 + ')',
+      '(' + NL + '|' + ESC_DOUBLE_STAR + '.*?' + ESC_DOUBLE_STAR + '|' + ESC_STAR + '.*?' + ESC_STAR + '|' + TICK1 + '.*?' + TICK1 + ')',
       'g'
     );
     var parts = text.split(re);
@@ -306,23 +331,84 @@ export async function GET(
     });
   }
 
+  function renderChartEl(jsonStr, parentEl) {
+    try {
+      var config = JSON.parse(jsonStr.trim());
+      var chartDiv = document.createElement('div');
+      chartDiv.style.cssText = 'width:100%;height:260px;margin:10px 0;background:#fff;border-radius:12px;padding:8px;border:1px solid #e5e7eb;';
+      parentEl.appendChild(chartDiv);
+
+      var isPie = config.type === 'pie';
+      var option = {
+        title: {
+          text: config.title || '',
+          left: 'center',
+          textStyle: { fontSize: 12, fontWeight: 'bold', color: '#1f2937' }
+        },
+        tooltip: { trigger: isPie ? 'item' : 'axis' },
+        grid: isPie ? undefined : { left: '3%', right: '4%', bottom: '18%', containLabel: true },
+        xAxis: isPie ? undefined : {
+          type: 'category',
+          data: config.categories || [],
+          axisLabel: { rotate: 30, interval: 0, fontSize: 10 }
+        },
+        yAxis: isPie ? undefined : { type: 'value' },
+        series: isPie ? [{
+          name: config.title || 'Data',
+          type: 'pie',
+          radius: '55%',
+          data: config.series || []
+        }] : (config.series || []).map(function(s) {
+          return {
+            name: s.name || 'Data',
+            type: config.type === 'line' ? 'line' : 'bar',
+            data: s.data || [],
+            itemStyle: { color: PRIMARY_COLOR, borderRadius: [4, 4, 0, 0] },
+            smooth: true
+          };
+        })
+      };
+
+      function tryInit() {
+        if (window.echarts) {
+          var myChart = window.echarts.init(chartDiv);
+          myChart.setOption(option);
+          chartInstances.push(myChart);
+        } else {
+          setTimeout(tryInit, 150);
+        }
+      }
+      tryInit();
+    } catch (e) {
+      console.error('Failed to render chart:', e);
+      var errBlock = document.createElement('pre');
+      errBlock.style.cssText = 'background:#f4f4f4;padding:8px;border-radius:6px;font-size:10px;overflow-x:auto;';
+      errBlock.textContent = jsonStr;
+      parentEl.appendChild(errBlock);
+    }
+  }
+
   function setContent(el, text) {
     var TICK3 = String.fromCharCode(96,96,96);
     var mermaidTag = TICK3 + 'mermaid';
+    var chartTag = TICK3 + 'chart';
     
     var processedText = text;
-    var firstMermaidIdx = processedText.indexOf(mermaidTag);
-    if (firstMermaidIdx !== -1) {
-      var afterMermaid = processedText.slice(firstMermaidIdx + mermaidTag.length);
-      if (afterMermaid.indexOf(TICK3) === -1) {
+    var firstIdx = processedText.indexOf(TICK3);
+    if (firstIdx !== -1) {
+      var afterIdx = processedText.slice(firstIdx + 3);
+      if (afterIdx.indexOf(TICK3) === -1) {
         processedText += TICK3;
       }
     }
 
-    var re = new RegExp('(' + TICK3 + 'mermaid[^]*?' + TICK3 + ')', 'g');
+    var re = new RegExp('(' + TICK3 + '(?:mermaid|chart)[^]*?' + TICK3 + ')', 'g');
     var parts = processedText.split(re);
     parts.forEach(function(part) {
-      if (part.startsWith(mermaidTag) && part.endsWith(TICK3)) {
+      if (part.startsWith(chartTag) && part.endsWith(TICK3)) {
+        var jsonCode = part.slice(chartTag.length).replace(new RegExp(TICK3 + '$'), '').trim();
+        renderChartEl(jsonCode, el);
+      } else if (part.startsWith(mermaidTag) && part.endsWith(TICK3)) {
         var code = part.slice(mermaidTag.length).replace(new RegExp(TICK3 + '$'), '').trim();
         var block = document.createElement('div');
         block.style.cssText = 'background:#f4f4f4;padding:12px;border-radius:8px;font-size:11px;overflow-x:auto;margin:8px 0;border:1px solid #e5e7eb;white-space:pre-wrap;';
