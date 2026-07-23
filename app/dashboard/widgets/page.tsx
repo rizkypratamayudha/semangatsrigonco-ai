@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import WidgetList from '@/components/widget-list'
 
 export default async function WidgetsPage() {
@@ -21,3 +21,4 @@ export default async function WidgetsPage() {
     </div>
   )
 }
+

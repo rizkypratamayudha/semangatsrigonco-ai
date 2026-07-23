@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef } from 'react'
 import toast from 'react-hot-toast'
@@ -111,8 +111,8 @@ export default function UploadWidget({ widgetId, onUploadComplete }: UploadWidge
           relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer
           transition-all duration-200
           ${isDragging
-            ? 'border-green-500 bg-green-50'
-            : 'border-border hover:border-green-400 hover:bg-green-50/50'
+            ? 'border-[#09923B] bg-[#09923B]/10'
+            : 'border-border hover:border-[#09923B]/50 hover:bg-[#09923B]/10/50'
           }
           ${uploading ? 'pointer-events-none opacity-60' : ''}
         `}
@@ -128,11 +128,11 @@ export default function UploadWidget({ widgetId, onUploadComplete }: UploadWidge
         <div className="flex flex-col items-center gap-4">
           <div className={`
             w-16 h-16 rounded-2xl flex items-center justify-center
-            ${isDragging ? 'bg-green-100' : 'bg-muted'}
+            ${isDragging ? 'bg-[#09923B]/15' : 'bg-muted'}
             transition-colors
           `}>
             {uploading ? (
-              <svg className="w-8 h-8 text-green-600 animate-spin" fill="none" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-[#09923B] animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
@@ -148,7 +148,7 @@ export default function UploadWidget({ widgetId, onUploadComplete }: UploadWidge
               {uploading ? 'Mengupload...' : 'Drag & drop file di sini'}
             </p>
             <p className="text-sm text-muted-foreground">
-              atau <span className="text-green-600 font-medium">klik untuk browse</span>
+              atau <span className="text-[#09923B] font-medium">klik untuk browse</span>
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export default function UploadWidget({ widgetId, onUploadComplete }: UploadWidge
         {uploading && progress > 0 && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted rounded-b-2xl overflow-hidden">
             <div
-              className="h-full gradient-bg transition-all duration-300"
+              className="h-full bg-[#4D0D0D] transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -176,3 +176,5 @@ export default function UploadWidget({ widgetId, onUploadComplete }: UploadWidge
     </div>
   )
 }
+
+

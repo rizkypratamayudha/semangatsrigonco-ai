@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useEffect } from 'react'
 
@@ -151,11 +151,11 @@ function Mermaid({ chart }: { chart: string }) {
       <div className="relative group w-full my-2">
         <button
           onClick={handleCopy}
-          className="absolute top-2 right-2 z-10 bg-white/90 backdrop-blur hover:bg-white text-gray-500 hover:text-green-600 p-2 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center cursor-pointer transition-all hover:scale-105"
+          className="absolute top-2 right-2 z-10 bg-white/90 backdrop-blur hover:bg-white text-gray-500 hover:text-[#09923B] p-2 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center cursor-pointer transition-all hover:scale-105"
           title="Salin Kode Diagram"
         >
           {copied ? (
-            <svg className="w-4 h-4 text-green-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-[#09923B] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           ) : (
@@ -166,7 +166,7 @@ function Mermaid({ chart }: { chart: string }) {
         </button>
         <div className="p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 flex flex-col gap-2">
           <p className="text-xs font-semibold flex items-center gap-1">
-            ⚠️ Gagal menggambar diagram (Ada kesalahan sintaks)
+            âš ï¸ Gagal menggambar diagram (Ada kesalahan sintaks)
           </p>
           <pre className="text-[10px] font-mono overflow-x-auto whitespace-pre opacity-80 mt-1 max-h-[150px]">
             {chart}
@@ -190,11 +190,11 @@ function Mermaid({ chart }: { chart: string }) {
         {/* Download Button */}
         <button
           onClick={handleDownload}
-          className="bg-white/90 backdrop-blur hover:bg-white text-gray-500 hover:text-green-600 p-2 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center cursor-pointer transition-all hover:scale-105"
+          className="bg-white/90 backdrop-blur hover:bg-white text-gray-500 hover:text-[#09923B] p-2 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center cursor-pointer transition-all hover:scale-105"
           title="Unduh Gambar Diagram (SVG)"
         >
           {downloaded ? (
-            <svg className="w-4 h-4 text-green-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-[#09923B] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           ) : (
@@ -206,11 +206,11 @@ function Mermaid({ chart }: { chart: string }) {
         {/* Copy Code Button */}
         <button
           onClick={handleCopy}
-          className="bg-white/90 backdrop-blur hover:bg-white text-gray-500 hover:text-green-600 p-2 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center cursor-pointer transition-all hover:scale-105"
+          className="bg-white/90 backdrop-blur hover:bg-white text-gray-500 hover:text-[#09923B] p-2 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center cursor-pointer transition-all hover:scale-105"
           title="Salin Kode Diagram"
         >
           {copied ? (
-            <svg className="w-4 h-4 text-green-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4 text-[#09923B] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           ) : (
@@ -297,7 +297,7 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: widget.welcome_message || 'Halo! Ada yang bisa dibantu? 👋',
+      content: widget.welcome_message || 'Halo! Ada yang bisa dibantu? ðŸ‘‹',
     },
   ])
   const [inputValue, setInputValue] = useState('')
@@ -429,10 +429,10 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                           {Array.from(new Set(msg.sources.map((src: any) => src.filename || 'Dokumen'))).map((filename, i) => (
                             <span 
                               key={i} 
-                              className="inline-flex items-center gap-1 text-[10px] font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-100/50 truncate max-w-full"
+                              className="inline-flex items-center gap-1 text-[10px] font-medium text-[#07752f] bg-[#09923B]/10 px-2 py-0.5 rounded border border-[#09923B]/20/50 truncate max-w-full"
                               title={`Dirujuk dari dokumen ${filename}`}
                             >
-                              📄 {filename}
+                              ðŸ“„ {filename}
                             </span>
                           ))}
                         </div>
@@ -512,7 +512,7 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Ketik pesan..."
-                className="flex-1 px-4 py-2.5 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:bg-white transition-all"
+                className="flex-1 px-4 py-2.5 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:bg-white transition-all"
                 disabled={loading}
               />
               <button
@@ -563,3 +563,4 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
     </div>
   )
 }
+

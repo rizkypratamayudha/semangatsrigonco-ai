@@ -649,7 +649,7 @@ export default function OnboardingTour() {
         gap: 8px;
       }
       .shepherd-button-primary {
-        background: #25d366 !important;
+        background: #4D0D0D !important;
         color: #ffffff !important;
         border: none !important;
         border-radius: 12px !important;
@@ -658,10 +658,10 @@ export default function OnboardingTour() {
         padding: 8px 16px !important;
         cursor: pointer !important;
         transition: all 0.2s ease !important;
-        box-shadow: 0 2px 4px rgba(37, 211, 102, 0.2) !important;
+        box-shadow: 0 2px 4px rgba(77, 13, 13, 0.2) !important;
       }
       .shepherd-button-primary:hover {
-        background: #128c7e !important;
+        background: #3a0a0a !important;
         transform: translateY(-0.5px);
       }
       .shepherd-button-secondary {

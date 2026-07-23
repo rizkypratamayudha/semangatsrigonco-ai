@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -93,7 +93,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Contoh: Customer Support Bot"
-            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
             required
           />
         </div>
@@ -113,7 +113,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
                 type="text"
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
-                className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+                className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all text-sm"
               />
             </div>
           </div>
@@ -127,8 +127,8 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
           type="text"
           value={welcomeMessage}
           onChange={(e) => setWelcomeMessage(e.target.value)}
-          placeholder="Contoh: Halo! Ada yang bisa dibantu? 👋"
-          className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+          placeholder="Contoh: Halo! Ada yang bisa dibantu? ðŸ‘‹"
+          className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
         />
         <p className="text-xs text-muted-foreground mt-1.5">Pesan yang muncul saat pertama kali user membuka chat</p>
       </div>
@@ -141,7 +141,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Contoh: Kamu adalah customer service yang ramah dan profesional. Jawab pertanyaan pelanggan tentang produk kami dengan singkat dan jelas..."
           rows={4}
-          className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none"
+          className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all resize-none"
         />
         <p className="text-xs text-muted-foreground mt-1.5">Instruksi untuk AI tentang bagaimana harus merespon</p>
       </div>
@@ -155,21 +155,21 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
             value={sugQuestion1}
             onChange={(e) => setSugQuestion1(e.target.value)}
             placeholder="Saran Pertanyaan 1 (misal: Berapa harga paket layanan?)"
-            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all text-sm"
           />
           <input
             type="text"
             value={sugQuestion2}
             onChange={(e) => setSugQuestion2(e.target.value)}
             placeholder="Saran Pertanyaan 2 (misal: Apakah ada garansi / free trial?)"
-            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all text-sm"
           />
           <input
             type="text"
             value={sugQuestion3}
             onChange={(e) => setSugQuestion3(e.target.value)}
             placeholder="Saran Pertanyaan 3 (misal: Bagaimana cara mendaftar?)"
-            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all text-sm"
           />
         </div>
         <p className="text-xs text-muted-foreground mt-1.5">Pertanyaan cepat yang dapat diklik oleh pengguna saat membuka chat pertama kali</p>
@@ -181,7 +181,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
           type="submit"
           id="tour-form-submit"
           disabled={loading}
-          className="inline-flex items-center gap-2 px-6 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-[#4D0D0D] text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {loading ? (
             <>
@@ -220,3 +220,4 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
     </form>
   )
 }
+
