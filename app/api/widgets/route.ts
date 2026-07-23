@@ -27,6 +27,8 @@ export async function GET() {
       primary_color: w.primaryColor,
       user_id: w.userId,
       suggested_questions: w.suggestedQuestions,
+      api_token: w.apiToken,
+      allowed_domains: w.allowedDomains,
       created_at: w.createdAt.toISOString(),
       updated_at: w.updatedAt.toISOString(),
     }));
@@ -68,6 +70,7 @@ export async function POST(request: NextRequest) {
         primaryColor: primary_color || '#25D366',
         userId: user.id,
         suggestedQuestions: Array.isArray(suggested_questions) ? suggested_questions : [],
+        allowedDomains: body.allowed_domains && Array.isArray(body.allowed_domains) ? body.allowed_domains : [],
       },
     });
 
@@ -80,6 +83,8 @@ export async function POST(request: NextRequest) {
         primary_color: newWidget.primaryColor,
         user_id: newWidget.userId,
         suggested_questions: newWidget.suggestedQuestions,
+        api_token: newWidget.apiToken,
+        allowed_domains: newWidget.allowedDomains,
         created_at: newWidget.createdAt.toISOString(),
         updated_at: newWidget.updatedAt.toISOString(),
       },
@@ -106,7 +111,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, name, welcome_message, prompt, primary_color, suggested_questions } = body;
+    const { id, name, welcome_message, prompt, primary_color, suggested_questions, allowed_domains, regenerate_token } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'ID widget wajib diisi' }, { status: 400 });
@@ -128,6 +133,8 @@ export async function PUT(request: NextRequest) {
         prompt: prompt !== undefined ? (prompt ? prompt.trim() : null) : existingWidget.prompt,
         primaryColor: primary_color || existingWidget.primaryColor,
         suggestedQuestions: Array.isArray(suggested_questions) ? suggested_questions : existingWidget.suggestedQuestions,
+        allowedDomains: Array.isArray(allowed_domains) ? allowed_domains : existingWidget.allowedDomains,
+        ...(regenerate_token ? { apiToken: require('crypto').randomUUID() } : {})
       },
     });
 
@@ -139,6 +146,8 @@ export async function PUT(request: NextRequest) {
       primary_color: updatedWidget.primaryColor,
       user_id: updatedWidget.userId,
       suggested_questions: updatedWidget.suggestedQuestions,
+      api_token: updatedWidget.apiToken,
+      allowed_domains: updatedWidget.allowedDomains,
       created_at: updatedWidget.createdAt.toISOString(),
       updated_at: updatedWidget.updatedAt.toISOString(),
     });

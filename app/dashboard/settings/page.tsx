@@ -1,10 +1,10 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
-type SettingsTab = 'profile' | 'security' | 'notifications'
+type SettingsTab = 'profile' | 'security'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile')
@@ -21,12 +21,6 @@ export default function SettingsPage() {
   const [showNewPw, setShowNewPw] = useState(false)
   const [showConfirmPw, setShowConfirmPw] = useState(false)
 
-  // Notification state
-  const [emailNotifications, setEmailNotifications] = useState(true)
-  const [chatNotifications, setChatNotifications] = useState(true)
-  const [weeklyReport, setWeeklyReport] = useState(true)
-  const [marketingEmails, setMarketingEmails] = useState(false)
-
   const supabase = createClient()
 
   useEffect(() => {
@@ -35,18 +29,6 @@ export default function SettingsPage() {
       if (authUser) {
         setFullName(authUser.user_metadata?.full_name || '')
         setEmail(authUser.email || '')
-      }
-      try {
-        const response = await fetch('/api/settings')
-        if (response.ok) {
-          const settings = await response.json()
-          setEmailNotifications(settings.emailNotifications)
-          setChatNotifications(settings.chatNotifications)
-          setWeeklyReport(settings.weeklyReport)
-          setMarketingEmails(settings.marketingEmails)
-        }
-      } catch (error) {
-        console.error('Failed to load settings:', error)
       }
       setLoading(false)
     }
@@ -106,29 +88,9 @@ export default function SettingsPage() {
     setSaving(false)
   }
 
-  async function handleNotificationsSave() {
-    setSaving(true)
-    try {
-      const response = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailNotifications, chatNotifications, weeklyReport, marketingEmails, theme: 'light', language: 'id' }),
-      })
-      if (response.ok) {
-        toast.success('Pengaturan notifikasi tersimpan')
-      } else {
-        toast.error('Gagal menyimpan pengaturan')
-      }
-    } catch {
-      toast.error('Terjadi kesalahan. Coba lagi.')
-    }
-    setSaving(false)
-  }
-
   const tabs: { id: SettingsTab; label: string; iconPath: string }[] = [
     { id: 'profile', label: 'Profil', iconPath: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { id: 'security', label: 'Keamanan', iconPath: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z' },
-    { id: 'notifications', label: 'Notifikasi', iconPath: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
   ]
 
   if (loading) {
@@ -398,43 +360,7 @@ export default function SettingsPage() {
               </div>
             )}
 
-            {/* Notifications Tab */}
-            {activeTab === 'notifications' && (
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <h2 className="text-xl font-bold">Pengaturan Notifikasi</h2>
-                  <span className="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-semibold rounded-full border border-gray-200">
-                    Coming Soon
-                  </span>
-                </div>
-                <div className="space-y-3 opacity-50 pointer-events-none">
-                  {[
-                    { label: 'Email Notifikasi', description: 'Terima notifikasi penting melalui email', icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-                    { label: 'Chat Notifikasi', description: 'Terima notifikasi saat ada chat baru masuk', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
-                    { label: 'Laporan Mingguan', description: 'Terima ringkasan performa chatbot setiap minggu', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-                    { label: 'Email Marketing', description: 'Terima info update produk dan tips penggunaan', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
-                  ].map((item) => (
-                    <div key={item.label} className="flex items-center justify-between p-4 bg-muted rounded-xl border border-border/40">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center border border-border/50 shrink-0">
-                          <svg className="w-4.5 h-4.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-sm">{item.label}</h3>
-                          <p className="text-xs text-muted-foreground">{item.description}</p>
-                        </div>
-                      </div>
-                      <div className="w-12 h-6 bg-gray-200 rounded-full relative shrink-0 ml-4">
-                        <div className="w-5 h-5 bg-white rounded-full shadow-sm absolute top-0.5 translate-x-0.5" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground mt-4">Fitur notifikasi akan segera hadir. Nantikan pembaruan selanjutnya!</p>
-              </div>
-            )}
+
 
 
 
