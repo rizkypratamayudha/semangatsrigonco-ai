@@ -66,41 +66,7 @@ export default async function Home() {
     },
   ]
 
-  const pricingPlans = [
-    {
-      name: 'Free',
-      price: 'Rp 0',
-      period: '/bulan',
-      highlight: false,
-      badge: null,
-      features: ['1 Widget chatbot', '50 pesan/bulan', '1 Dokumen (.pdf / .txt)', 'Analytics & Histori Chat', 'Embed ke website'],
-      cta: 'Mulai Gratis',
-      ctaHref: '/register',
-      ctaStyle: 'border-2 border-border text-foreground hover:bg-muted',
-    },
-    {
-      name: 'Pro',
-      price: 'Rp 99K',
-      period: '/bulan',
-      highlight: true,
-      badge: 'POPULER',
-      features: ['2 Widget chatbot', '200 pesan/bulan', '3 Dokumen (.pdf / .txt)', 'Analytics & Histori Chat', 'Priority support'],
-      cta: 'Pilih Paket Ini',
-      ctaHref: '/register',
-      ctaStyle: 'gradient-bg text-white hover:opacity-90',
-    },
-    {
-      name: 'Enterprise',
-      price: 'Rp 499K',
-      period: '/bulan',
-      highlight: false,
-      badge: null,
-      features: ['3 Widget chatbot', 'Pesan Unlimited', '6 Dokumen (Semua format)', 'Analytics & Histori Chat', 'Akses Semua Format Dokumen'],
-      cta: 'Pilih Paket Ini',
-      ctaHref: '/register',
-      ctaStyle: 'border-2 border-border text-foreground hover:bg-muted',
-    },
-  ]
+
 
   const testimonials = [
     {
@@ -147,7 +113,6 @@ export default async function Home() {
             <div className="hidden md:flex items-center gap-8 text-sm font-medium">
               <a href="#fitur" className="text-muted-foreground hover:text-foreground transition-colors">Fitur</a>
               <a href="#cara-kerja" className="text-muted-foreground hover:text-foreground transition-colors">Cara Kerja</a>
-              <a href="#harga" className="text-muted-foreground hover:text-foreground transition-colors">Harga</a>
               <a href="#testimoni" className="text-muted-foreground hover:text-foreground transition-colors">Testimoni</a>
             </div>
             <div className="flex items-center gap-3">
@@ -155,7 +120,7 @@ export default async function Home() {
                 Masuk
               </Link>
               <Link href="/register" className="px-5 py-2.5 gradient-bg rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm">
-                Daftar Gratis
+                Mulai Sekarang
               </Link>
             </div>
           </div>
@@ -395,51 +360,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="harga" className="py-24 px-4 bg-gradient-to-b from-green-50/60 to-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full mb-4">
-              <span className="text-sm font-semibold text-green-700">Harga Transparan</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Pilih <span className="gradient-text">Paket</span> yang Tepat</h2>
-            <p className="text-muted-foreground text-lg">Mulai gratis selamanya, upgrade sesuai kebutuhan bisnis Anda</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {pricingPlans.map((plan) => (
-              <div
-                key={plan.name}
-                className={`pricing-card rounded-2xl p-8 relative ${plan.highlight ? 'popular' : ''}`}
-              >
-                {plan.badge && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="gradient-bg px-5 py-1.5 rounded-full text-white text-xs font-bold shadow">{plan.badge}</span>
-                  </div>
-                )}
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                  <div className="text-4xl font-bold">{plan.price}</div>
-                  <div className="text-muted-foreground text-sm">{plan.period}</div>
-                </div>
-                <ul className="space-y-3.5 mb-8">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-3 text-sm">
-                      <CheckIcon />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={plan.ctaHref}
-                  className={`block text-center py-3 px-6 rounded-xl font-semibold transition-all ${plan.ctaStyle}`}
-                >
-                  {plan.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Testimonials */}
       <section id="testimoni" className="py-24 px-4 bg-white">

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
-type SettingsTab = 'profile' | 'security' | 'notifications' | 'billing'
+type SettingsTab = 'profile' | 'security' | 'notifications'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile')
@@ -27,10 +27,6 @@ export default function SettingsPage() {
   const [weeklyReport, setWeeklyReport] = useState(true)
   const [marketingEmails, setMarketingEmails] = useState(false)
 
-  const [userTier, setUserTier] = useState('free')
-  const [subscriptionExpiresAt, setSubscriptionExpiresAt] = useState<string | null>(null)
-  const [upgrading, setUpgrading] = useState<string | null>(null)
-
   const supabase = createClient()
 
   useEffect(() => {
@@ -39,18 +35,6 @@ export default function SettingsPage() {
       if (authUser) {
         setFullName(authUser.user_metadata?.full_name || '')
         setEmail(authUser.email || '')
-
-        // Fetch user tier and subscription details from database
-        const { data: userData } = await supabase
-          .from('users')
-          .select('tier, subscription_expires_at')
-          .eq('id', authUser.id)
-          .single()
-        
-        if (userData) {
-          setUserTier(userData.tier)
-          setSubscriptionExpiresAt(userData.subscription_expires_at || null)
-        }
       }
       try {
         const response = await fetch('/api/settings')
@@ -67,24 +51,6 @@ export default function SettingsPage() {
       setLoading(false)
     }
     loadData()
-
-    // Dynamically load Midtrans Snap script
-    const snapSrc = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true'
-      ? 'https://app.midtrans.com/snap/snap.js'
-      : 'https://app.sandbox.midtrans.com/snap/snap.js';
-    const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '';
-
-    const script = document.createElement('script');
-    script.src = snapSrc;
-    script.setAttribute('data-client-key', clientKey);
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      try {
-        document.body.removeChild(script);
-      } catch {}
-    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -159,56 +125,10 @@ export default function SettingsPage() {
     setSaving(false)
   }
 
-  async function handleUpgrade(targetTier: 'pro' | 'enterprise') {
-    setUpgrading(targetTier)
-    try {
-      const res = await fetch('/api/payment/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier: targetTier }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        toast.error(data.error || 'Gagal memulai transaksi')
-        setUpgrading(null)
-        return
-      }
-
-      if (data.token) {
-        if ((window as any).snap) {
-          (window as any).snap.pay(data.token, {
-            onSuccess: function (result: any) {
-              toast.success('Pembayaran sukses! Akun Anda sedang diperbarui.')
-              setTimeout(() => window.location.reload(), 1500)
-            },
-            onPending: function (result: any) {
-              toast.success('Menunggu pembayaran Anda. Silakan selesaikan pembayaran.')
-            },
-            onError: function (result: any) {
-              toast.error('Pembayaran gagal. Silakan coba lagi.')
-            },
-            onClose: function () {
-              toast('Pembayaran dibatalkan', { icon: 'ℹ️' })
-            }
-          })
-        } else {
-          toast.error('Gagal memuat modul pembayaran Midtrans')
-        }
-      } else {
-        toast.error('Token pembayaran tidak valid')
-      }
-    } catch (err) {
-      toast.error('Terjadi kesalahan koneksi')
-    } finally {
-      setUpgrading(null)
-    }
-  }
-
   const tabs: { id: SettingsTab; label: string; iconPath: string }[] = [
     { id: 'profile', label: 'Profil', iconPath: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
     { id: 'security', label: 'Keamanan', iconPath: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z' },
     { id: 'notifications', label: 'Notifikasi', iconPath: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
-    { id: 'billing', label: 'Langganan', iconPath: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
   ]
 
   if (loading) {
@@ -264,7 +184,6 @@ export default function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  id={tab.id === 'billing' ? 'tour-settings-billing' : undefined}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     activeTab === tab.id
                       ? 'gradient-bg text-white shadow-md'
@@ -305,7 +224,6 @@ export default function SettingsPage() {
                   <div>
                     <h2 className="text-xl font-bold">{fullName || 'Pengguna'}</h2>
                     <p className="text-muted-foreground text-sm">{email}</p>
-                    <span className="mt-1.5 inline-block px-2.5 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Free Plan</span>
                   </div>
                 </div>
 
@@ -518,142 +436,7 @@ export default function SettingsPage() {
               </div>
             )}
 
-            {/* Billing Tab */}
-            {activeTab === 'billing' && (
-              <div>
-                <h2 className="text-xl font-bold mb-2">Langganan</h2>
-                <p className="text-sm text-muted-foreground mb-6">Pilih paket yang sesuai dengan kebutuhan bisnis Anda</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {/* Free Plan */}
-                  {/* Free Plan */}
-                  <div className="p-6 bg-gray-50 rounded-2xl border border-border relative">
-                    <div className="mb-4">
-                      <h3 className="font-bold text-lg">Free</h3>
-                      <div className="mt-2">
-                        <span className="text-3xl font-bold">Rp0</span>
-                        <span className="text-muted-foreground text-sm">/bulan</span>
-                      </div>
-                    </div>
-                    <ul className="space-y-2.5 text-sm mb-6">
-                      {['1 Widget', '50 Pesan/bulan', '1 Dokumen (.pdf / .txt)', 'Analytics & Histori Chat', 'Basic Support'].map((f) => (
-                        <li key={f} className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                    {userTier === 'free' ? (
-                      <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
-                        ✓ Paket Saat Ini
-                      </div>
-                    ) : (
-                      <div className="px-4 py-2.5 bg-gray-100 text-gray-400 rounded-xl text-center text-sm font-medium">
-                        Paket Free
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Pro Plan */}
-                  <div id="tour-billing-card-pro" className="p-6 bg-white border-2 border-green-500 rounded-2xl relative shadow-md">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 gradient-bg text-white text-xs font-bold rounded-full shadow">
-                      POPULER
-                    </div>
-                    <div className="mb-4">
-                      <h3 className="font-bold text-lg">Pro</h3>
-                      <div className="mt-2">
-                        <span className="text-3xl font-bold">Rp99K</span>
-                        <span className="text-muted-foreground text-sm">/bulan</span>
-                      </div>
-                    </div>
-                    <ul className="space-y-2.5 text-sm mb-6">
-                      {['2 Widget', '200 Pesan/bulan', '3 Dokumen (.pdf / .txt)', 'Analytics & Histori Chat', 'Priority Support'].map((f) => (
-                        <li key={f} className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                    {userTier === 'pro' ? (
-                      <div className="space-y-1">
-                        <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
-                          ✓ Paket Saat Ini
-                        </div>
-                        {subscriptionExpiresAt && (
-                          <p className="text-xs text-center text-muted-foreground mt-1">
-                            Aktif sampai: {new Date(subscriptionExpiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          </p>
-                        )}
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleUpgrade('pro')}
-                        disabled={upgrading !== null}
-                        className="w-full py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-opacity shadow disabled:opacity-50 flex items-center justify-center gap-2"
-                      >
-                        {upgrading === 'pro' && (
-                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        )}
-                        {upgrading === 'pro' ? 'Memproses...' : 'Upgrade Sekarang'}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Enterprise Plan */}
-                  <div className="p-6 bg-gray-50 rounded-2xl border border-border">
-                    <div className="mb-4">
-                      <h3 className="font-bold text-lg">Enterprise</h3>
-                      <div className="mt-2">
-                        <span className="text-3xl font-bold">Rp499K</span>
-                        <span className="text-muted-foreground text-sm">/bulan</span>
-                      </div>
-                    </div>
-                    <ul className="space-y-2.5 text-sm mb-6">
-                      {['3 Widget', 'Pesan Unlimited', '6 Dokumen (Semua format)', 'Analytics & Histori Chat', 'Akses Semua Format Dokumen'].map((f) => (
-                        <li key={f} className="flex items-center gap-2">
-                          <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                    {userTier === 'enterprise' ? (
-                      <div className="space-y-1">
-                        <div className="px-4 py-2.5 bg-green-100 text-green-700 rounded-xl text-center text-sm font-semibold">
-                          ✓ Paket Saat Ini
-                        </div>
-                        {subscriptionExpiresAt && (
-                          <p className="text-xs text-center text-muted-foreground mt-1">
-                            Aktif sampai: {new Date(subscriptionExpiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          </p>
-                        )}
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleUpgrade('enterprise')}
-                        disabled={upgrading !== null}
-                        className="w-full py-3 border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                      >
-                        {upgrading === 'enterprise' && (
-                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        )}
-                        {upgrading === 'enterprise' ? 'Memproses...' : 'Upgrade Sekarang'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
 
           </div>
         </div>

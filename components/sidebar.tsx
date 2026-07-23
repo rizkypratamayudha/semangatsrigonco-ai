@@ -7,7 +7,7 @@ import LogoutButton from '@/components/logout-button'
 
 interface SidebarProps {
   userEmail: string | null
-  userTier?: string
+  userRole?: string
 }
 
 const navItems = [
@@ -33,6 +33,14 @@ const navItems = [
     ),
   },
   {
+    href: '/dashboard/users',
+    label: 'Pengguna',
+    adminOnly: true,
+    icon: (
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    ),
+  },
+  {
     href: '/dashboard/settings',
     label: 'Pengaturan',
     icon: (
@@ -44,11 +52,11 @@ const navItems = [
   },
 ]
 
-export default function Sidebar({ userEmail, userTier = 'free' }: SidebarProps) {
+export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const formattedTier = userTier.charAt(0).toUpperCase() + userTier.slice(1) + ' Plan'
+  const filteredNavItems = navItems.filter((item) => !item.adminOnly || userRole === 'admin')
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -96,7 +104,7 @@ export default function Sidebar({ userEmail, userTier = 'free' }: SidebarProps) 
       {/* Navigation */}
       <nav className="flex-1 p-4">
         <div className="space-y-1.5">
-          {navItems.map((item) => {
+          {filteredNavItems.map((item) => {
             const isActive = pathname === item.href
             let itemId = undefined
             if (item.href === '/dashboard/widgets') itemId = 'tour-nav-widgets'
@@ -144,7 +152,6 @@ export default function Sidebar({ userEmail, userTier = 'free' }: SidebarProps) 
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium truncate">{userEmail}</div>
-            <div className="text-xs text-muted-foreground">{formattedTier}</div>
           </div>
         </div>
         <LogoutButton />

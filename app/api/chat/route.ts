@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateEmbedding, searchSimilarChunks } from '@/lib/rag/embeddings';
-import { checkAndApplySubscriptionExpiration } from '@/lib/subscription';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -53,26 +52,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch owner user's plan tier to check monthly message quota, applying expiration check if needed
-    const userTier = await checkAndApplySubscriptionExpiration(widget.user_id);
-    const messageLimit = userTier === 'free' ? 50 : userTier === 'pro' ? 200 : Infinity;
-
-    if (messageLimit !== Infinity) {
-      const { data: count, error: countError } = await supabase
-        .rpc('get_user_monthly_message_count', { owner_id: widget.user_id });
-      
-      if (countError) {
-        console.error('Failed to fetch monthly message count:', countError.message);
-      } else if (count !== null && count >= messageLimit) {
-        return NextResponse.json(
-          { 
-            response: `Maaf, batas kuota chat bulanan untuk akun ${userTier.toUpperCase()} pemilik chatbot ini telah tercapai (${messageLimit}/${messageLimit} pesan). Silakan hubungi pemilik chatbot untuk melakukan upgrade paket.`,
-            error: 'Plan quota exceeded'
-          },
-          { status: 200, headers: { 'Access-Control-Allow-Origin': '*' } }
-        );
-      }
-    }
 
     // Create or get conversation
     let currentConversationId = conversationId;

@@ -50,39 +50,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch user's plan tier to restrict file format and count access
-    const { data: userData } = await supabase
-      .from('users')
-      .select('tier')
-      .eq('id', user.id)
-      .single();
-
-    const userTier = userData?.tier || 'free';
-
-    const { count: existingDocsCount } = await supabase
-      .from('documents')
-      .select('*', { count: 'exact', head: true })
-      .eq('widget_id', widgetId || '');
-
-    const docLimit = userTier === 'free' ? 1 : userTier === 'pro' ? 3 : 6;
-
-    if (existingDocsCount !== null && existingDocsCount >= docLimit) {
-      return NextResponse.json(
-        { error: `Batas jumlah dokumen tercapai. Akun ${userTier.toUpperCase()} Anda hanya diizinkan mengunggah maksimal ${docLimit} dokumen. Silakan upgrade plan Anda untuk menambah kuota!` },
-        { status: 400 }
-      );
-    }
-
-    // 2. Enforce document format restrictions
-    if (userTier === 'free' || userTier === 'pro') {
-      if (!['text/plain', 'application/pdf'].includes(file.type)) {
-        return NextResponse.json(
-          { error: `Format file tidak didukung untuk paket ${userTier.toUpperCase()}. Hanya file .txt dan .pdf yang diperbolehkan. Silakan upgrade ke paket Enterprise untuk mengunggah berkas Word (.docx) atau Excel/CSV!` },
-          { status: 400 }
-        );
-      }
-    }
-
 
     // Save to temp file
     const uploadDir = join(tmpdir(), 'uploads');
