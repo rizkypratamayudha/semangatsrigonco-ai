@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useState } from 'react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
+import Lottie from 'lottie-react'
+import robotAnimation from '../../public/Robot_Chatbot.json'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -48,48 +50,40 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-green-50 to-white">
-      {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-bg relative items-center justify-center p-12">
-        <div className="absolute inset-0 bg-black/10" />
-        <div className="relative z-10 text-center">
-          <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-8">
-            <svg className="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
-          </div>
-          <h1 className="text-4xl font-bold text-white mb-4">ChatToko</h1>
-          <p className="text-white/90 text-lg max-w-md">
-            Customer Service AI 24/7 untuk bisnis Anda. Jawab pertanyaan pelanggan otomatis.
-          </p>
+    <div className="min-h-screen flex relative overflow-hidden bg-gray-50/20">
+      {/* Animated Background */}
+      <div className="bg-anim"></div>
+      <div className="bg-anim bg-anim-2"></div>
+      <div className="bg-anim bg-anim-3"></div>
 
-          {/* Preview Chat */}
-          <div className="mt-12 bg-white/10 rounded-2xl p-6 max-w-sm mx-auto">
-            <div className="flex gap-3 mb-4">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <div className="bg-white/20 rounded-2xl rounded-tl-none px-4 py-2">
-                <p className="text-white text-sm">Halo! Ada yang bisa saya bantu? 👋</p>
-              </div>
-            </div>
-          </div>
+      {/* Left side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative z-10 items-center justify-center p-12">
+        <div className="text-center">
+          <Lottie 
+            animationData={robotAnimation} 
+            loop={true} 
+            className="w-72 h-72 mx-auto mb-6" 
+          />
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Srigonco AI</h1>
+          <p className="text-gray-600 text-lg max-w-md mx-auto">
+            Asisten Cerdas Desa Srigonco 24/7. Melayani informasi pemerintahan, pelayanan publik, dan potensi desa kapan saja.
+          </p>
         </div>
       </div>
 
       {/* Right side - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center p-8 relative z-10">
+        <div className="w-full max-w-md bg-white/40 backdrop-blur-2xl border border-white/50 p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center">
-              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center">
+              <Lottie 
+                animationData={robotAnimation} 
+                loop={true} 
+                className="w-14 h-14" 
+              />
             </div>
-            <span className="text-2xl font-bold">ChatToko</span>
+            <span className="text-2xl font-bold text-gray-900">Srigonco AI</span>
           </div>
 
           <h2 className="text-3xl font-bold mb-2">Selamat Datang Kembali</h2>
@@ -103,7 +97,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-white/60 backdrop-blur-md border border-white/60 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                 placeholder="nama@email.com"
                 required
               />
@@ -164,11 +158,11 @@ export default function LoginPage() {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-muted-foreground">atau</span>
+              {/* <span className="px-4 bg-white text-muted-foreground">atau</span> */}
             </div>
           </div>
 
-          <button
+          {/* <button
             onClick={handleGitHubLogin}
             className="w-full py-3 bg-card border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors flex items-center justify-center gap-3"
           >
@@ -176,9 +170,14 @@ export default function LoginPage() {
               <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
             </svg>
             Masuk dengan GitHub
-          </button>
+          </button> */}
 
-
+          <p className="mt-8 text-center text-muted-foreground">
+            Belum punya akun?{' '}
+            <Link href="/register" className="text-green-600 hover:text-green-700 font-semibold transition-colors">
+              Daftar gratis
+            </Link>
+          </p>
         </div>
       </div>
     </div>
