@@ -51,7 +51,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <div className="min-h-screen bg-[#F8F9FA]">
       <Sidebar userEmail={user.email ?? null} userRole={userRole} />
       <MobileHeader />
       <main className="md:ml-64 p-4 md:p-8 pt-16 md:pt-8 min-h-screen">
@@ -61,4 +61,3 @@ export default async function DashboardLayout({
     </div>
   )
 }
-

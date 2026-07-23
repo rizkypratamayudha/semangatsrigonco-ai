@@ -3,17 +3,20 @@
 :root {
   --background: #ffffff;
   --foreground: #1a1a2e;
-  --primary: #25D366;
-  --primary-dark: #128C7E;
-  --secondary: #075E54;
-  --accent: #128C7E;
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
+  --primary: #4D0D0D;
+  --primary-dark: #3a0a0a;
+  --primary-light: #6b1a1a;
+  --secondary: #09923B;
+  --secondary-dark: #07752f;
+  --secondary-light: #0bb848;
+  --accent: #09923B;
+  --muted: #f8f9fa;
+  --muted-foreground: #6c757d;
   --card: #ffffff;
   --border: #e2e8f0;
-  --gradient-start: #25D366;
-  --gradient-end: #128C7E;
-  --success: #25D366;
+  --gradient-start: #4D0D0D;
+  --gradient-end: #3a0a0a;
+  --success: #09923B;
   --warning: #fbbf24;
   --info: #3b82f6;
 }
@@ -60,7 +63,7 @@ body {
 }
 
 .glow {
-  box-shadow: 0 0 60px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 0 60px rgba(77, 13, 13, 0.3);
 }
 
 .card-hover {
@@ -69,7 +72,7 @@ body {
 
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(37, 211, 102, 0.15);
+  box-shadow: 0 20px 40px rgba(77, 13, 13, 0.15);
 }
 
 .section-padding {
@@ -92,8 +95,8 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(37, 211, 102, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(37, 211, 102, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(77, 13, 13, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(77, 13, 13, 0.6); }
 }
 
 .animate-pulse-glow {
@@ -145,26 +148,26 @@ body {
   animation: slide-in-right 0.6s ease-out forwards;
 }
 
-.whatsapp-btn {
-  background: #25D366;
+.srigonco-btn {
+  background: #4D0D0D;
   transition: all 0.3s ease;
 }
 
-.whatsapp-btn:hover {
-  background: #128C7E;
+.srigonco-btn:hover {
+  background: #3a0a0a;
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 10px 30px rgba(77, 13, 13, 0.3);
 }
 
 .feature-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
 }
 
 .feature-card:hover {
-  border-color: #25D366;
-  box-shadow: 0 10px 40px rgba(37, 211, 102, 0.1);
+  border-color: #4D0D0D;
+  box-shadow: 0 10px 40px rgba(77, 13, 13, 0.1);
 }
 
 .pricing-card {
@@ -174,12 +177,12 @@ body {
 }
 
 .pricing-card:hover {
-  border-color: #25D366;
+  border-color: #09923B;
   transform: translateY(-8px);
-  box-shadow: 0 20px 50px rgba(37, 211, 102, 0.15);
+  box-shadow: 0 20px 50px rgba(9, 146, 59, 0.15);
 }
 
 .pricing-card.popular {
-  border-color: #25D366;
+  border-color: #09923B;
   background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
 }

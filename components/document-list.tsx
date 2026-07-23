@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
@@ -20,16 +20,16 @@ interface DocumentListProps {
 }
 
 const FILE_ICONS: Record<string, string> = {
-  'application/pdf': '📄',
-  'text/plain': '📝',
-  'text/csv': '📊',
-  'application/vnd.ms-excel': '📊',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📘',
+  'application/pdf': 'ðŸ“„',
+  'text/plain': 'ðŸ“',
+  'text/csv': 'ðŸ“Š',
+  'application/vnd.ms-excel': 'ðŸ“Š',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'ðŸ“˜',
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   processing: { label: 'Memproses', color: 'bg-yellow-100 text-yellow-700' },
-  ready: { label: 'Siap', color: 'bg-green-100 text-green-700' },
+  ready: { label: 'Siap', color: 'bg-[#09923B]/15 text-[#07752f]' },
   error: { label: 'Error', color: 'bg-red-100 text-red-600' },
 }
 
@@ -148,11 +148,11 @@ export default function DocumentList({ widgetId, refreshTrigger }: DocumentListP
         return (
           <div
             key={doc.id}
-            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-green-300 transition-colors"
+            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-[#09923B]/40 transition-colors"
           >
             {/* File Icon */}
             <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-xl">
-              {FILE_ICONS[doc.file_type] || '📄'}
+              {FILE_ICONS[doc.file_type] || 'ðŸ“„'}
             </div>
 
             {/* File Info */}
@@ -229,3 +229,4 @@ export default function DocumentList({ widgetId, refreshTrigger }: DocumentListP
     </div>
   )
 }
+

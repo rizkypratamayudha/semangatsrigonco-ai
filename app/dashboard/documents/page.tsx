@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import UploadWidget from '@/components/upload-widget'
@@ -59,7 +59,7 @@ export default function DocumentsPage() {
             <select
               value={selectedWidgetId}
               onChange={(e) => setSelectedWidgetId(e.target.value)}
-              className="px-4 py-2.5 bg-white border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent min-w-[200px]"
+              className="px-4 py-2.5 bg-white border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent min-w-[200px]"
             >
               {widgets.map((widget) => (
                 <option key={widget.id} value={widget.id}>
@@ -85,7 +85,7 @@ export default function DocumentsPage() {
           </p>
           <a
             href="/dashboard/widgets"
-            className="inline-flex items-center gap-2 px-6 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#4D0D0D] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -99,7 +99,7 @@ export default function DocumentsPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl border border-border p-6 mb-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-[#4D0D0D] rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
@@ -137,3 +137,4 @@ export default function DocumentsPage() {
     </div>
   )
 }
+

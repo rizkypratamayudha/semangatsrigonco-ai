@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import dynamic from 'next/dynamic'
 import type { EChartsOption } from 'echarts'
@@ -58,15 +58,15 @@ export default function DashboardCharts({ sparklineData }: DashboardChartsProps)
         smooth: true,
         symbol: 'circle',
         symbolSize: 7,
-        lineStyle: { color: '#16a34a', width: 3 },
-        itemStyle: { color: '#16a34a', borderColor: '#fff', borderWidth: 2.5 },
+        lineStyle: { color: '#09923B', width: 3 },
+        itemStyle: { color: '#09923B', borderColor: '#fff', borderWidth: 2.5 },
         areaStyle: {
           color: {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(22,163,74,0.22)' },
-              { offset: 1, color: 'rgba(22,163,74,0.01)' },
+              { offset: 0, color: 'rgba(9,146,59,0.22)' },
+              { offset: 1, color: 'rgba(9,146,59,0.01)' },
             ],
           },
         },
@@ -88,3 +88,4 @@ export default function DashboardCharts({ sparklineData }: DashboardChartsProps)
 
   return <ReactECharts option={option} style={{ height: '192px' }} />
 }
+

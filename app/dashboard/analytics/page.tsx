@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import dynamic from 'next/dynamic'
 import { useState, useEffect } from 'react'
@@ -125,15 +125,15 @@ export default function AnalyticsPage() {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        lineStyle: { color: '#16a34a', width: 2.5 },
-        itemStyle: { color: '#16a34a', borderColor: '#fff', borderWidth: 2 },
+        lineStyle: { color: '#09923B', width: 2.5 },
+        itemStyle: { color: '#09923B', borderColor: '#fff', borderWidth: 2 },
         areaStyle: {
           color: {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(22,163,74,0.25)' },
-              { offset: 1, color: 'rgba(22,163,74,0.02)' },
+              { offset: 0, color: 'rgba(9,146,59,0.25)' },
+              { offset: 1, color: 'rgba(9,146,59,0.02)' },
             ],
           },
         },
@@ -181,14 +181,14 @@ export default function AnalyticsPage() {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: '#7c3aed' },
-              { offset: 1, color: '#a78bfa' },
+              { offset: 0, color: '#4D0D0D' },
+              { offset: 1, color: '#6b1a1a' },
             ],
           },
           borderRadius: [6, 6, 0, 0],
         },
         emphasis: {
-          itemStyle: { color: '#6d28d9' },
+          itemStyle: { color: '#3a0a0a' },
         },
       },
     ],
@@ -240,8 +240,8 @@ export default function AnalyticsPage() {
             type: 'linear',
             x: 0, y: 0, x2: 1, y2: 0,
             colorStops: [
-              { offset: 0, color: '#22c55e' },
-              { offset: 1, color: '#16a34a' },
+              { offset: 0, color: '#09923B' },
+              { offset: 1, color: '#07752f' },
             ],
           },
           borderRadius: [0, 6, 6, 0],
@@ -261,7 +261,7 @@ export default function AnalyticsPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-4 text-muted-foreground">
-          <svg className="w-10 h-10 animate-spin text-green-500" fill="none" viewBox="0 0 24 24">
+          <svg className="w-10 h-10 animate-spin text-[#09923B]" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
@@ -298,7 +298,7 @@ export default function AnalyticsPage() {
               onClick={() => setTimeRange(range)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 timeRange === range
-                  ? 'gradient-bg text-white shadow-sm'
+                  ? 'bg-[#4D0D0D] text-white shadow-sm'
                   : 'text-muted-foreground hover:bg-muted'
               }`}
             >
@@ -315,32 +315,32 @@ export default function AnalyticsPage() {
             label: 'Total Percakapan',
             value: stats.totalConversations,
             icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
-            bg: 'bg-blue-100',
-            color: 'text-blue-600',
+            bg: 'bg-[#4D0D0D]/10',
+            color: 'text-[#4D0D0D]',
             sub: `${rangeLabel} terakhir`,
           },
           {
             label: 'Total Pesan',
             value: stats.totalMessages,
             icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z',
-            bg: 'bg-green-100',
-            color: 'text-green-600',
+            bg: 'bg-[#09923B]/15',
+            color: 'text-[#09923B]',
             sub: `${rangeLabel} terakhir`,
           },
           {
             label: 'Percakapan Aktif',
             value: stats.activeConversations,
             icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
-            bg: 'bg-purple-100',
-            color: 'text-purple-600',
+            bg: 'bg-[#09923B]/10',
+            color: 'text-[#09923B]',
             sub: 'Saat ini',
           },
           {
             label: 'Avg Pesan/Percakapan',
             value: stats.avgMessagesPerConversation,
             icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-            bg: 'bg-orange-100',
-            color: 'text-orange-600',
+            bg: 'bg-[#4D0D0D]/10',
+            color: 'text-[#4D0D0D]',
             sub: 'Rata-rata',
           },
         ].map((card) => (
@@ -368,8 +368,8 @@ export default function AnalyticsPage() {
               <h3 className="text-lg font-semibold">Percakapan</h3>
               <p className="text-xs text-muted-foreground">{rangeLabel} terakhir</p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-green-600 font-medium bg-green-50 px-3 py-1.5 rounded-lg">
-              <span className="w-2 h-2 bg-green-500 rounded-full" />
+            <div className="flex items-center gap-2 text-xs text-[#09923B] font-medium bg-[#09923B]/10 px-3 py-1.5 rounded-lg">
+              <span className="w-2 h-2 bg-[#09923B] rounded-full" />
               Aktif
             </div>
           </div>
@@ -387,8 +387,8 @@ export default function AnalyticsPage() {
               <h3 className="text-lg font-semibold">Pesan</h3>
               <p className="text-xs text-muted-foreground">{rangeLabel} terakhir</p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-purple-600 font-medium bg-purple-50 px-3 py-1.5 rounded-lg">
-              <span className="w-2 h-2 bg-purple-500 rounded-full" />
+            <div className="flex items-center gap-2 text-xs text-[#4D0D0D] font-medium bg-[#4D0D0D]/10 px-3 py-1.5 rounded-lg">
+              <span className="w-2 h-2 bg-[#4D0D0D] rounded-full" />
               Semua pesan
             </div>
           </div>
@@ -419,12 +419,12 @@ export default function AnalyticsPage() {
                 {topQuestions.map((item: any, idx: number) => (
                   <div key={idx} className="flex items-center justify-between p-3.5 bg-muted/50 rounded-xl hover:bg-muted transition-colors border border-border/30">
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="w-6 h-6 rounded-full bg-green-50 text-green-700 border border-green-100 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                      <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] border border-[#09923B]/20 font-bold text-xs flex items-center justify-center flex-shrink-0">
                         {idx + 1}
                       </span>
                       <p className="text-sm font-medium text-foreground truncate">&ldquo;{item.question}&rdquo;</p>
                     </div>
-                    <span className="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 shadow-sm">
+                    <span className="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-[#09923B]/15 text-[#07752f] shadow-sm">
                       {item.count}x
                     </span>
                   </div>
@@ -450,17 +450,17 @@ export default function AnalyticsPage() {
               <div className="flex flex-wrap gap-2.5 pt-2">
                 {topKeywords.map((item: any, idx: number) => {
                   const style = idx === 0 
-                    ? 'bg-green-600 text-white border-green-600' 
+                    ? 'bg-[#09923B] text-white border-[#09923B]' 
                     : idx < 3 
-                      ? 'bg-green-50 text-green-700 border-green-200' 
+                      ? 'bg-[#09923B]/10 text-[#07752f] border-[#09923B]/30' 
                       : 'bg-muted text-muted-foreground border-border/40';
                   return (
                     <span
                       key={idx}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium border shadow-sm transition-all hover:scale-105 ${style}`}
                     >
-                      🏷️ {item.keyword}
-                      <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${idx === 0 ? 'bg-white text-green-700' : 'bg-green-100 text-green-800'}`}>
+                      ðŸ·ï¸ {item.keyword}
+                      <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${idx === 0 ? 'bg-white text-[#07752f]' : 'bg-[#09923B]/15 text-[#07752f]'}`}>
                         {item.count}
                       </span>
                     </span>
@@ -544,3 +544,5 @@ function getTimeAgo(dateString: string): string {
 
   return date.toLocaleDateString('id-ID')
 }
+
+
