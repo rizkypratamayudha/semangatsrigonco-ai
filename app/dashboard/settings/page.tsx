@@ -135,7 +135,7 @@ export default function SettingsPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-4 text-muted-foreground">
-          <svg className="w-10 h-10 animate-spin text-green-500" fill="none" viewBox="0 0 24 24">
+          <svg className="w-10 h-10 animate-spin text-[#09923B]" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
@@ -164,11 +164,11 @@ export default function SettingsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
                 activeTab === tab.id
-                  ? 'gradient-bg text-white shadow-md'
+                  ? 'bg-[#4D0D0D] text-white shadow-md'
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.iconPath} />
               </svg>
               {tab.label}
@@ -176,7 +176,7 @@ export default function SettingsPage() {
           ))}
         </div>
 
-        <div className="flex min-h-[540px]">
+        <div className="flex min-h-135">
           {/* Desktop Left Navigation */}
           <div className="hidden md:flex w-56 border-r border-border p-4 flex-col">
             <nav className="space-y-1 flex-1">
@@ -186,11 +186,11 @@ export default function SettingsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     activeTab === tab.id
-                      ? 'gradient-bg text-white shadow-md'
+                      ? 'bg-[#4D0D0D] text-white shadow-md'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
-                  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.iconPath} />
                   </svg>
                   {tab.label}
@@ -200,7 +200,7 @@ export default function SettingsPage() {
             {/* User mini card at bottom of sidebar */}
             <div className="mt-auto pt-4 border-t border-border">
               <div className="flex items-center gap-3 px-2">
-                <div className="w-9 h-9 gradient-bg rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                <div className="w-9 h-9 bg-[#4D0D0D] rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0">
                   {avatarLetter}
                 </div>
                 <div className="min-w-0">
@@ -217,8 +217,8 @@ export default function SettingsPage() {
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div>
-                <div className="flex items-center gap-5 mb-8 p-5 bg-gradient-to-br from-green-50 to-emerald-50/40 rounded-2xl border border-green-100">
-                  <div className="w-20 h-20 gradient-bg rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-md flex-shrink-0">
+                <div className="flex items-center gap-5 mb-8 p-5 bg-[#09923B]/10 rounded-2xl border border-[#09923B]/20">
+                  <div className="w-20 h-20 bg-[#4D0D0D] rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-md shrink-0">
                     {avatarLetter}
                   </div>
                   <div>
@@ -235,7 +235,7 @@ export default function SettingsPage() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Masukkan nama lengkap Anda"
-                      className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm transition-shadow"
+                      className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent text-sm transition-shadow"
                     />
                   </div>
                   <div>
@@ -245,7 +245,7 @@ export default function SettingsPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="email@example.com"
-                      className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm transition-shadow"
+                      className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent text-sm transition-shadow"
                     />
                     <p className="text-xs text-muted-foreground mt-1.5">Perubahan email memerlukan verifikasi ulang.</p>
                   </div>
@@ -253,7 +253,7 @@ export default function SettingsPage() {
                     <button
                       onClick={handleProfileSave}
                       disabled={saving}
-                      className="inline-flex items-center gap-2 px-6 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-sm"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#4D0D0D] text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-sm"
                     >
                       {saving ? (
                         <>
@@ -295,7 +295,7 @@ export default function SettingsPage() {
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             placeholder="Minimal 6 karakter"
-                            className="w-full px-4 py-3 pr-12 bg-white border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                            className="w-full px-4 py-3 pr-12 bg-white border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent text-sm"
                           />
                           <button
                             type="button"
@@ -321,7 +321,7 @@ export default function SettingsPage() {
                                 key={level}
                                 className={`h-1 flex-1 rounded-full transition-colors ${
                                   newPassword.length >= level * 3
-                                    ? level <= 2 ? 'bg-orange-400' : 'bg-green-500'
+                                    ? level <= 2 ? 'bg-orange-400' : 'bg-[#09923B]'
                                     : 'bg-gray-200'
                                 }`}
                               />
@@ -341,7 +341,7 @@ export default function SettingsPage() {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Ulangi password baru"
-                            className={`w-full px-4 py-3 pr-12 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm transition-colors ${
+                            className={`w-full px-4 py-3 pr-12 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent text-sm transition-colors ${
                               confirmPassword && confirmPassword !== newPassword
                                 ? 'border-red-300 bg-red-50/40'
                                 : 'border-border'
@@ -372,7 +372,7 @@ export default function SettingsPage() {
                       <button
                         onClick={handlePasswordSave}
                         disabled={saving || !newPassword || !confirmPassword}
-                        className="inline-flex items-center gap-2 px-6 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-sm"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#4D0D0D] text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-sm"
                       >
                         {saving ? (
                           <>
@@ -392,7 +392,7 @@ export default function SettingsPage() {
                       <h3 className="font-semibold">Two-Factor Authentication</h3>
                       <p className="text-sm text-muted-foreground mt-0.5">Tambahkan lapisan keamanan ekstra ke akun Anda</p>
                     </div>
-                    <span className="flex-shrink-0 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">Segera Hadir</span>
+                    <span className="shrink-0 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">Segera Hadir</span>
                   </div>
                 </div>
               </div>
@@ -416,7 +416,7 @@ export default function SettingsPage() {
                   ].map((item) => (
                     <div key={item.label} className="flex items-center justify-between p-4 bg-muted rounded-xl border border-border/40">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center border border-border/50 flex-shrink-0">
+                        <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center border border-border/50 shrink-0">
                           <svg className="w-4.5 h-4.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                           </svg>
@@ -426,7 +426,7 @@ export default function SettingsPage() {
                           <p className="text-xs text-muted-foreground">{item.description}</p>
                         </div>
                       </div>
-                      <div className="w-12 h-6 bg-gray-200 rounded-full relative flex-shrink-0 ml-4">
+                      <div className="w-12 h-6 bg-gray-200 rounded-full relative shrink-0 ml-4">
                         <div className="w-5 h-5 bg-white rounded-full shadow-sm absolute top-0.5 translate-x-0.5" />
                       </div>
                     </div>
@@ -444,3 +444,4 @@ export default function SettingsPage() {
     </div>
   )
 }
+

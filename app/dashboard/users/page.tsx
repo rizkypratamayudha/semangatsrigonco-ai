@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -172,7 +172,7 @@ export default function UserManagementPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-4 text-muted-foreground">
-          <svg className="w-10 h-10 animate-spin text-green-500" fill="none" viewBox="0 0 24 24">
+          <svg className="w-10 h-10 animate-spin text-[#09923B]" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
@@ -192,7 +192,7 @@ export default function UserManagementPage() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 px-5 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-sm self-start sm:self-auto"
+          className="inline-flex items-center gap-2 px-5 py-3 bg-[#4D0D0D] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-sm self-start sm:self-auto"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -211,7 +211,7 @@ export default function UserManagementPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari berdasarkan email atau nama..."
-              className="w-full pl-10 pr-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent text-sm"
             />
             <svg className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -249,7 +249,7 @@ export default function UserManagementPage() {
                     <tr key={u.id} className="hover:bg-muted/30 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 gradient-bg rounded-xl flex items-center justify-center text-white font-bold text-sm">
+                          <div className="w-9 h-9 bg-[#4D0D0D] rounded-xl flex items-center justify-center text-white font-bold text-sm">
                             {avatarLetter}
                           </div>
                           <div>
@@ -263,8 +263,8 @@ export default function UserManagementPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {isAdmin ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#09923B]/15 text-[#07752f] text-xs font-bold rounded-full">
+                            <span className="w-2 h-2 rounded-full bg-[#09923B] animate-pulse" />
                             Admin
                           </span>
                         ) : (
@@ -284,7 +284,7 @@ export default function UserManagementPage() {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => openEditModal(u)}
-                            className="p-2 text-muted-foreground hover:text-green-600 hover:bg-green-50 rounded-xl transition-colors"
+                            className="p-2 text-muted-foreground hover:text-[#09923B] hover:bg-[#09923B]/10 rounded-xl transition-colors"
                             title="Edit Pengguna"
                           >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -317,7 +317,7 @@ export default function UserManagementPage() {
           <div className="bg-white p-6 md:p-8 rounded-3xl shadow-2xl max-w-md w-full border border-gray-100 flex flex-col gap-6 animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center text-white">
+                <div className="w-10 h-10 bg-[#4D0D0D] rounded-xl flex items-center justify-center text-white">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                   </svg>
@@ -345,7 +345,7 @@ export default function UserManagementPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Contoh: John Doe"
-                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] text-sm"
                 />
               </div>
               <div>
@@ -355,7 +355,7 @@ export default function UserManagementPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="email@perusahaan.com"
-                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] text-sm"
                   required
                 />
               </div>
@@ -367,7 +367,7 @@ export default function UserManagementPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Minimal 6 karakter"
-                    className="w-full px-4 py-3 pr-12 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                    className="w-full px-4 py-3 pr-12 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] text-sm"
                     required
                   />
                   <button
@@ -395,7 +395,7 @@ export default function UserManagementPage() {
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value as 'admin' | 'user')}
-                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm font-medium"
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] text-sm font-medium"
                 >
                   <option value="user">Staf / User Biasa</option>
                   <option value="admin">Administrator (Akses Penuh)</option>
@@ -413,7 +413,7 @@ export default function UserManagementPage() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="flex-1 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity text-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-[#4D0D0D] text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity text-sm flex items-center justify-center gap-2"
                 >
                   {creating ? 'Membuat...' : 'Buat Akun'}
                 </button>
@@ -429,7 +429,7 @@ export default function UserManagementPage() {
           <div className="bg-white p-6 md:p-8 rounded-3xl shadow-2xl max-w-md w-full border border-gray-100 flex flex-col gap-6 animate-in fade-in zoom-in duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 gradient-bg rounded-xl flex items-center justify-center text-white">
+                <div className="w-10 h-10 bg-[#4D0D0D] rounded-xl flex items-center justify-center text-white">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
@@ -457,7 +457,7 @@ export default function UserManagementPage() {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   placeholder="Masukkan nama lengkap"
-                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] text-sm"
                 />
               </div>
 
@@ -466,7 +466,7 @@ export default function UserManagementPage() {
                 <select
                   value={editRole}
                   onChange={(e) => setEditRole(e.target.value as 'admin' | 'user')}
-                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm font-medium"
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] text-sm font-medium"
                 >
                   <option value="user">Staf / User Biasa</option>
                   <option value="admin">Administrator (Akses Penuh)</option>
@@ -484,7 +484,7 @@ export default function UserManagementPage() {
                 <button
                   type="submit"
                   disabled={editing}
-                  className="flex-1 py-3 gradient-bg text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity text-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-[#4D0D0D] text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity text-sm flex items-center justify-center gap-2"
                 >
                   {editing ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
@@ -528,3 +528,5 @@ export default function UserManagementPage() {
     </div>
   )
 }
+
+

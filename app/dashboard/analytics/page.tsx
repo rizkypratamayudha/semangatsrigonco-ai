@@ -419,7 +419,7 @@ export default function AnalyticsPage() {
                 {topQuestions.map((item: any, idx: number) => (
                   <div key={idx} className="flex items-center justify-between p-3.5 bg-muted/50 rounded-xl hover:bg-muted transition-colors border border-border/30">
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] border border-[#09923B]/20 font-bold text-xs flex items-center justify-center flex-shrink-0">
+                      <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] border border-[#09923B]/20 font-bold text-xs flex items-center justify-center shrink-0">
                         {idx + 1}
                       </span>
                       <p className="text-sm font-medium text-foreground truncate">&ldquo;{item.question}&rdquo;</p>
@@ -506,10 +506,10 @@ export default function AnalyticsPage() {
               <p className="text-sm">Belum ada aktivitas dalam {rangeLabel} terakhir</p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-[260px] overflow-y-auto">
+            <div className="space-y-2 max-h-65 overflow-y-auto">
               {recentActivity.map((activity) => (
                 <div key={activity.id} className="flex items-start gap-4 p-3 rounded-xl hover:bg-muted transition-colors">
-                  <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                     </svg>
@@ -544,5 +544,7 @@ function getTimeAgo(dateString: string): string {
 
   return date.toLocaleDateString('id-ID')
 }
+
+
 
 
