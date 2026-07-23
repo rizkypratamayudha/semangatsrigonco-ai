@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/sidebar'
 import MobileHeader from '@/components/mobile-header'
@@ -61,3 +61,4 @@ export default async function DashboardLayout({
     </div>
   )
 }
+

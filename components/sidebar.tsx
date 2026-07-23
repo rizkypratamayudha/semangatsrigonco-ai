@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -118,7 +118,7 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
                 id={itemId}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                   isActive
-                    ? 'bg-[#09923B] text-white font-medium'
+                    ? 'bg-white/20 text-white font-medium shadow-sm'
                     : 'text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -141,7 +141,7 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
           }}
           className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 rounded-xl transition-colors mb-4 border border-white/10"
         >
-          <svg className="w-4 h-4 text-white/80 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-white/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Mulai Panduan Baru
@@ -183,3 +183,4 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
     </>
   )
 }
+

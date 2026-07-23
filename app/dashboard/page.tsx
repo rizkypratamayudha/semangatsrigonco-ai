@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import DashboardCharts from '@/components/dashboard-charts'
 
@@ -105,7 +105,7 @@ export default async function DashboardPage() {
   return (
     <div className="pb-12">
       {/* Welcome Banner */}
-      <div className="relative mb-8 rounded-3xl overflow-hidden bg-gradient-to-br from-[#4D0D0D] via-[#4D0D0D] to-[#6b1a1a] p-8 shadow-lg">
+      <div className="relative mb-8 rounded-3xl overflow-hidden bg-linear-to-br from-[#4D0D0D] via-[#4D0D0D] to-[#6b1a1a] p-8 shadow-lg">
         <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
           <div className="absolute -top-10 -right-10 w-56 h-56 bg-white/10 rounded-full" />
           <div className="absolute -bottom-16 -left-8 w-72 h-72 bg-white/5 rounded-full" />
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         <div className="relative flex items-center justify-between gap-6">
           <div>
             <p className="text-white/70 text-sm font-medium mb-1">{greeting},</p>
-            <h1 className="text-3xl font-bold text-white mb-2 capitalize">{firstName} 👋</h1>
+            <h1 className="text-3xl font-bold text-white mb-2 capitalize">{firstName} ðŸ‘‹</h1>
             <p className="text-white/70 text-sm max-w-md">
               Semua sistem berjalan normal. Anda memiliki <span className="font-semibold text-white">{widgetCount} widget</span> chatbot aktif siap melayani pengunjung.
             </p>
@@ -170,7 +170,7 @@ export default async function DashboardPage() {
               <p className="text-xs text-muted-foreground">7 hari terakhir</p>
             </div>
             <Link href="/dashboard/analytics" className="text-xs text-[#09923B] font-medium hover:underline">
-              Lihat detail →
+              Lihat detail â†’
             </Link>
           </div>
           <DashboardCharts sparklineData={sparklineData} />
@@ -252,7 +252,7 @@ export default async function DashboardPage() {
             href="/dashboard/widgets"
             className="text-xs font-semibold text-[#09923B] hover:text-[#07752f] hover:underline transition-colors"
           >
-            Kelola semua →
+            Kelola semua â†’
           </Link>
         </div>
 
@@ -284,7 +284,7 @@ export default async function DashboardPage() {
                 className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-[#09923B]/30 hover:bg-[#09923B]/5 transition-all group"
               >
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: widget.primary_color || '#25D366' }}
                 >
                   <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -298,7 +298,7 @@ export default async function DashboardPage() {
                     <span className="text-xs text-muted-foreground">Aktif</span>
                   </div>
                 </div>
-                <svg className="w-4 h-4 text-muted-foreground/40 group-hover:text-[#09923B] transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 text-muted-foreground/40 group-hover:text-[#09923B] transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
@@ -308,7 +308,7 @@ export default async function DashboardPage() {
                 href="/dashboard/widgets"
                 className="flex items-center justify-center gap-2 p-4 rounded-xl border border-dashed border-gray-200 hover:border-[#09923B]/50 hover:bg-[#09923B]/5 transition-all text-sm text-muted-foreground hover:text-[#09923B] font-medium"
               >
-                +{recentWidgets.length - 6} widget lainnya →
+                +{recentWidgets.length - 6} widget lainnya â†’
               </Link>
             )}
           </div>
@@ -317,3 +317,5 @@ export default async function DashboardPage() {
     </div>
   )
 }
+
+

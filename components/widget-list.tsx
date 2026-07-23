@@ -301,7 +301,7 @@ export default function WidgetList({ userId }: { userId: string }) {
   return (
     <div className="flex flex-col lg:flex-row gap-6">
       {/* Left Sidebar - Search & Filters */}
-      <div className="w-full lg:w-72 lg:flex-shrink-0">
+      <div className="w-full lg:w-72 lg:shrink-0">
         <div className="lg:sticky lg:top-6 space-y-6">
           {/* Search */}
           <div className="bg-white rounded-2xl border border-border p-5">
@@ -515,7 +515,7 @@ export default function WidgetList({ userId }: { userId: string }) {
 
                       {/* Widget Icon */}
                       <div
-                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0"
                         style={{ backgroundColor: widget.primary_color || '#25D366' }}
                       >
                         <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -655,7 +655,7 @@ export default function WidgetList({ userId }: { userId: string }) {
                           />
                         </div>
                         {/* Document List */}
-                        <div className="lg:col-span-1 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-[220px]">
+                        <div className="lg:col-span-1 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-55">
                           <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
                             <svg className="w-4.5 h-4.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -803,7 +803,7 @@ export default function WidgetList({ userId }: { userId: string }) {
               <div className="space-y-3 pt-2">
                 <h4 className="font-semibold text-sm text-gray-800">Langkah Pemasangan:</h4>
                 <div className="flex gap-3">
-                  <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] font-bold text-xs flex items-center justify-center flex-shrink-0 border border-[#09923B]/20">
+                  <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] font-bold text-xs flex items-center justify-center shrink-0 border border-[#09923B]/20">
                     1
                   </span>
                   <p className="text-xs text-gray-500 leading-relaxed">
@@ -811,7 +811,7 @@ export default function WidgetList({ userId }: { userId: string }) {
                   </p>
                 </div>
                 <div className="flex gap-3">
-                  <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] font-bold text-xs flex items-center justify-center flex-shrink-0 border border-[#09923B]/20">
+                  <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] font-bold text-xs flex items-center justify-center shrink-0 border border-[#09923B]/20">
                     2
                   </span>
                   <p className="text-xs text-gray-500 leading-relaxed">
@@ -819,7 +819,7 @@ export default function WidgetList({ userId }: { userId: string }) {
                   </p>
                 </div>
                 <div className="flex gap-3">
-                  <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] font-bold text-xs flex items-center justify-center flex-shrink-0 border border-[#09923B]/20">
+                  <span className="w-6 h-6 rounded-full bg-[#09923B]/10 text-[#07752f] font-bold text-xs flex items-center justify-center shrink-0 border border-[#09923B]/20">
                     3
                   </span>
                   <p className="text-xs text-gray-500 leading-relaxed">
@@ -990,4 +990,6 @@ export default function WidgetList({ userId }: { userId: string }) {
     </div>
   )
 }
+
+
 
