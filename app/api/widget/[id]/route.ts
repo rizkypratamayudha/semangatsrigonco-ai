@@ -10,8 +10,53 @@ export async function GET(
   const widget = await prisma.widget.findUnique({
     where: { id },
   });
+  // tamabahan kemanan chatbot embed  dengan token
 
-  const name = widget?.name || 'Srigonco AI';
+  if (!widget) {
+    return new NextResponse('Widget not found', { status: 404 });
+  }
+
+  // --- Security Checks ---
+  const referer = request.headers.get('referer');
+  const origin = request.headers.get('origin');
+  
+  // Extract domain from referer or origin
+  let requestDomain = origin;
+  if (!requestDomain && referer) {
+    try {
+      requestDomain = new URL(referer).origin;
+    } catch (e) {
+      // Invalid referer URL
+    }
+  }
+
+  // 1. Domain Whitelisting
+  if (widget.allowedDomains && widget.allowedDomains.length > 0) {
+    if (!requestDomain) {
+      return new NextResponse('Missing Origin or Referer header for domain validation.', { status: 403 });
+    }
+    
+    // Clean trailing slashes for comparison
+    const cleanRequestDomain = requestDomain.replace(/\/$/, '');
+    
+    const isAllowed = widget.allowedDomains.some(domain => {
+      const cleanDomain = domain.replace(/\/$/, '');
+      return cleanRequestDomain === cleanDomain || cleanRequestDomain.endsWith(cleanDomain);
+    });
+
+    if (!isAllowed) {
+      return new NextResponse(`Domain ${requestDomain} is not authorized to use this widget.`, { status: 403 });
+    }
+  }
+
+  // 2. Token Validation
+  const urlToken = request.nextUrl.searchParams.get('token');
+  if (widget.apiToken && urlToken !== widget.apiToken) {
+    return new NextResponse('Invalid or missing API Token.', { status: 403 });
+  }
+  // --- End Security Checks ---
+
+  const name = widget.name || 'Srigonco AI';
   const welcome = widget?.welcomeMessage || 'Halo! Ada yang bisa dibantu? 👋';
   const color = widget?.primaryColor || '#25D366';
   const suggestedQuestions = widget?.suggestedQuestions || [];

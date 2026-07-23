@@ -16,6 +16,8 @@ interface Widget {
   primary_color: string | null
   created_at: string
   suggested_questions?: string[]
+  api_token?: string | null
+  allowed_domains?: string[]
 }
 
 type SortBy = 'newest' | 'oldest' | 'name'
@@ -44,6 +46,8 @@ export default function WidgetList({ userId }: { userId: string }) {
   const [editSugQuestion1, setEditSugQuestion1] = useState('')
   const [editSugQuestion2, setEditSugQuestion2] = useState('')
   const [editSugQuestion3, setEditSugQuestion3] = useState('')
+  const [editAllowedDomains, setEditAllowedDomains] = useState('')
+  const [regenerateToken, setRegenerateToken] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
   const [generatingQuestions, setGeneratingQuestions] = useState(false)
 
@@ -185,7 +189,8 @@ export default function WidgetList({ userId }: { userId: string }) {
   }
 
   function handleCopyEmbed(widget: Widget) {
-    const embedCode = `<script src="${window.location.origin}/api/widget/${widget.id}" async></script>`
+    const tokenPart = widget.api_token ? `?token=${widget.api_token}` : ''
+    const embedCode = `<script src="${window.location.origin}/api/widget/${widget.id}${tokenPart}" async></script>`
     navigator.clipboard.writeText(embedCode)
     setCopiedId(widget.id)
     setTimeout(() => setCopiedId(null), 2000)
@@ -201,6 +206,8 @@ export default function WidgetList({ userId }: { userId: string }) {
     setEditSugQuestion1(sug[0] || '')
     setEditSugQuestion2(sug[1] || '')
     setEditSugQuestion3(sug[2] || '')
+    setEditAllowedDomains((widget.allowed_domains || []).join('\n'))
+    setRegenerateToken(false)
   }
 
   async function handleSaveEdit(e: React.FormEvent) {
@@ -221,6 +228,8 @@ export default function WidgetList({ userId }: { userId: string }) {
           prompt: editPrompt.trim() || null,
           primary_color: editPrimaryColor,
           suggested_questions: sug,
+          allowed_domains: editAllowedDomains.split('\n').map(d => d.trim()).filter(Boolean),
+          regenerate_token: regenerateToken
         }),
       })
 
@@ -805,7 +814,7 @@ export default function WidgetList({ userId }: { userId: string }) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                   </svg>
                 </button>
-                <span>{`<script src="${window.location.origin}/api/widget/${embedGuideWidget.id}" async></script>`}</span>
+                <span>{`<script src="${window.location.origin}/api/widget/${embedGuideWidget.id}${embedGuideWidget.api_token ? `?token=${embedGuideWidget.api_token}` : ''}" async></script>`}</span>
               </div>
 
               {/* Steps */}
@@ -967,6 +976,41 @@ export default function WidgetList({ userId }: { userId: string }) {
                     placeholder="Saran Pertanyaan 3"
                     className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
                   />
+                </div>
+              </div>
+
+              {/* Security Section */}
+              <div className="border-t border-gray-200 pt-4 mt-2">
+                <h4 className="font-semibold text-sm text-gray-800 mb-3">Keamanan Widget</h4>
+                
+                <div className="mb-3">
+                  <label className="block text-xs font-semibold mb-1 text-gray-600">Allowed Domains (Domain yang Diizinkan)</label>
+                  <p className="text-[10px] text-gray-500 mb-2">Pisahkan dengan baris baru (Enter). Kosongkan untuk mengizinkan semua domain (Tidak Disarankan).</p>
+                  <textarea
+                    value={editAllowedDomains}
+                    onChange={(e) => setEditAllowedDomains(e.target.value)}
+                    rows={3}
+                    placeholder="https://website-saya.com&#10;http://localhost:3000"
+                    className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all resize-none font-mono"
+                  />
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <label className="block text-xs font-semibold mb-1 text-gray-600">API Token</label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <code className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 truncate">
+                      {editWidget?.api_token || 'Belum ada token'}
+                    </code>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer mt-2">
+                    <input 
+                      type="checkbox" 
+                      checked={regenerateToken}
+                      onChange={(e) => setRegenerateToken(e.target.checked)}
+                      className="rounded border-gray-300 text-[#09923B] focus:ring-[#09923B]"
+                    />
+                    <span className="text-xs text-red-600 font-medium">Regenerate Token (Token lama akan hangus)</span>
+                  </label>
                 </div>
               </div>
 

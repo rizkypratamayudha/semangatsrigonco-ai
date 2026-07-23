@@ -27,6 +27,8 @@ model Widget {
   updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
   userId             String   @map("user_id")
   suggestedQuestions String[] @default([]) @map("suggested_questions")
+  apiToken           String?  @unique @default(cuid()) @map("api_token")
+  allowedDomains     String[] @default([]) @map("allowed_domains")
 
   @@map("widgets")
 }

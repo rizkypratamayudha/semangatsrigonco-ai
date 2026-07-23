@@ -70,6 +70,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // --- Security Checks ---
+    const referer = request.headers.get('referer');
+    const origin = request.headers.get('origin');
+    
+    let requestDomain = origin;
+    if (!requestDomain && referer) {
+      try {
+        requestDomain = new URL(referer).origin;
+      } catch (e) {
+        // Invalid referer
+      }
+    }
+
+    if (widget.allowedDomains && widget.allowedDomains.length > 0) {
+      if (!requestDomain) {
+        return NextResponse.json(
+          { error: 'Missing Origin or Referer header for domain validation.' },
+          { status: 403, headers: { 'Access-Control-Allow-Origin': '*' } }
+        );
+      }
+      
+      const cleanRequestDomain = requestDomain.replace(/\/$/, '');
+      const isAllowed = widget.allowedDomains.some(domain => {
+        const cleanDomain = domain.replace(/\/$/, '');
+        return cleanRequestDomain === cleanDomain || cleanRequestDomain.endsWith(cleanDomain);
+      });
+
+      if (!isAllowed) {
+        return NextResponse.json(
+          { error: `Domain ${requestDomain} is not authorized.` },
+          { status: 403, headers: { 'Access-Control-Allow-Origin': '*' } }
+        );
+      }
+    }
+
+    // Since token is passed via the script src url, it's not present in chat POST request.
+    // However, if we want chat API to also be protected by token, the frontend must send it.
+    // For now, domain whitelisting is the primary protection for the chat API,
+    // because the token is primarily checked on widget load.
+    // --- End Security Checks ---
+
     const supabase = await createClient();
 
     // Create or get conversation using Prisma
