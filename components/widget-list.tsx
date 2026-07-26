@@ -161,6 +161,11 @@ export default function WidgetList({ userId }: { userId: string }) {
   }
 
   async function handleDuplicate(widget: Widget) {
+    if (widgets.length >= 1) {
+      toast.error('Setiap akun email hanya diperbolehkan membuat maksimal 1 widget.')
+      return
+    }
+
     try {
       const res = await fetch('/api/widgets', {
         method: 'POST',
@@ -431,9 +436,20 @@ export default function WidgetList({ userId }: { userId: string }) {
           </div>
 
           <button
-            onClick={() => setShowCreateForm(!showCreateForm)}
+            onClick={() => {
+              if (!showCreateForm && widgets.length >= 1) {
+                toast.error('Setiap akun email hanya diperbolehkan membuat maksimal 1 widget.')
+                return
+              }
+              setShowCreateForm(!showCreateForm)
+            }}
             id="tour-create-widget"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4D0D0D] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
+            className={`inline-flex items-center gap-2 px-5 py-2.5 font-semibold rounded-xl transition-all ${
+              widgets.length >= 1 && !showCreateForm
+                ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                : 'bg-[#4D0D0D] text-white hover:opacity-90'
+            }`}
+            title={widgets.length >= 1 && !showCreateForm ? 'Setiap akun email hanya diperbolehkan membuat maksimal 1 widget' : undefined}
           >
             {showCreateForm ? (
               <>
@@ -447,7 +463,7 @@ export default function WidgetList({ userId }: { userId: string }) {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Buat Widget
+                {widgets.length >= 1 ? 'Batas Widget Terpenuhi (1/1)' : 'Buat Widget'}
               </>
             )}
           </button>
