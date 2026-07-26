@@ -521,60 +521,65 @@ export default function WidgetList({ userId }: { userId: string }) {
                     selectedWidgets.includes(widget.id) ? 'border-[#09923B] ring-2 ring-[#09923B]/20' : 'border-border'
                   }`}
                 >
-                  <div className="p-5">
-                    <div className="flex items-start gap-3 sm:gap-4">
-                      {/* Checkbox */}
-                      <input
-                        type="checkbox"
-                        checked={selectedWidgets.includes(widget.id)}
-                        onChange={() => toggleSelectWidget(widget.id)}
-                        className="w-5 h-5 mt-1 rounded border-gray-300 text-[#09923B] focus:ring-[#09923B]"
-                      />
+                  <div className="p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+                      {/* Top row: checkbox + icon + info (always visible) */}
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        {/* Checkbox */}
+                        <input
+                          type="checkbox"
+                          checked={selectedWidgets.includes(widget.id)}
+                          onChange={() => toggleSelectWidget(widget.id)}
+                          className="w-5 h-5 mt-1 rounded border-gray-300 text-[#09923B] focus:ring-[#09923B] shrink-0"
+                        />
 
-                      {/* Widget Icon */}
-                      <div
-                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shrink-0"
-                        style={{ backgroundColor: widget.primary_color || '#25D366' }}
-                      >
-                        <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                        </svg>
-                      </div>
-
-                      {/* Widget Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-lg">{widget.name}</h3>
-                          <span className="px-2.5 py-1 bg-[#09923B]/15 text-[#07752f] text-xs font-medium rounded-full">
-                            Aktif
-                          </span>
+                        {/* Widget Icon */}
+                        <div
+                          className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shrink-0 border border-gray-100 shadow-sm"
+                          style={{ backgroundColor: widget.primary_color || '#25D366' }}
+                        >
+                          <img
+                            src="/logo%20chatbot-bg%20transparan.png"
+                            alt={widget.name}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
 
-                        {widget.welcome_message && (
-                          <p className="text-sm text-muted-foreground mb-2 truncate">
-                            &ldquo;{widget.welcome_message}&rdquo;
-                          </p>
-                        )}
+                        {/* Widget Info */}
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                            <h3 className="font-semibold text-base sm:text-lg truncate">{widget.name}</h3>
+                            <span className="px-2.5 py-1 bg-[#09923B]/15 text-[#07752f] text-xs font-medium rounded-full whitespace-nowrap shrink-0">
+                              Aktif
+                            </span>
+                          </div>
 
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            {new Date(widget.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <div
-                              className="w-3 h-3 rounded-full border border-gray-200"
-                              style={{ backgroundColor: widget.primary_color || '#25D366' }}
-                            />
-                            {widget.primary_color || '#25D366'}
-                          </span>
+                          {widget.welcome_message && (
+                            <p className="text-sm text-muted-foreground mb-1 sm:mb-2 line-clamp-2">
+                              &ldquo;{widget.welcome_message}&rdquo;
+                            </p>
+                          )}
+
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              {new Date(widget.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <div
+                                className="w-3 h-3 rounded-full border border-gray-200 shrink-0"
+                                style={{ backgroundColor: widget.primary_color || '#25D366' }}
+                              />
+                              <span className="truncate max-w-25">{widget.primary_color || '#25D366'}</span>
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      {/* Actions - separate row on mobile */}
+                      <div className="flex items-center justify-start sm:justify-end gap-1.5 sm:gap-2 shrink-0 flex-wrap">
                         <button
                           onClick={() => setExpandedWidgetId(expandedWidgetId === widget.id ? null : widget.id)}
                           id={isFirst ? 'tour-doc-manage' : undefined}
@@ -644,18 +649,18 @@ export default function WidgetList({ userId }: { userId: string }) {
 
                   {/* Prompt Preview */}
                   {widget.prompt && (
-                    <div className="mt-4 ml-0 sm:ml-14 p-3 bg-muted rounded-xl">
+                    <div className="mt-3 sm:mt-4 ml-0 sm:ml-14 p-3 bg-muted rounded-xl">
                       <p className="text-xs text-muted-foreground mb-1">Instruksi AI</p>
-                      <p className="text-sm text-foreground/80 line-clamp-2">{widget.prompt}</p>
+                      <p className="text-sm text-foreground/80 line-clamp-3 sm:line-clamp-4 wrap-anywhere">{widget.prompt}</p>
                     </div>
                   )}
 
                   {/* Expanded Document Management Section */}
                   {expandedWidgetId === widget.id && (
-                    <div className="mt-5 pt-5 border-t border-border animate-in fade-in slide-in-from-top duration-300">
-                      <div className="grid lg:grid-cols-3 gap-6">
+                    <div className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-border animate-in fade-in slide-in-from-top duration-300">
+                      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
                         {/* Upload Widget */}
-                        <div className="lg:col-span-2 bg-gray-50/40 p-5 rounded-2xl border border-dashed border-gray-200">
+                        <div className="lg:flex-2 bg-gray-50/40 p-4 sm:p-5 rounded-2xl border border-dashed border-gray-200">
                           <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
                             <svg className="w-4.5 h-4.5 text-[#09923B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -673,7 +678,7 @@ export default function WidgetList({ userId }: { userId: string }) {
                           />
                         </div>
                         {/* Document List */}
-                        <div className="lg:col-span-1 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-55">
+                        <div className="lg:flex-1 bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-55">
                           <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
                             <svg className="w-4.5 h-4.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />

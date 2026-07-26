@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function MobileHeader() {
   return (
-    <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#4D0D0D] backdrop-blur-md border-b border-white/10 z-30 flex items-center px-4 gap-3">
+    <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-gradient-to-r from-[#4D0D0D] to-[#7A1515] border-b border-white/10 z-30 flex items-center px-4 gap-3 shadow-md">
       {/* Hamburger */}
       <button
         onClick={() => window.dispatchEvent(new Event('toggle-sidebar'))}
@@ -17,12 +17,14 @@ export default function MobileHeader() {
       </button>
       {/* Logo */}
       <Link href="/dashboard" className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-          </svg>
+        <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-sm ring-1 ring-white/20">
+          <img
+            src="/logo%20chatbot-bg%20transparan.png"
+            alt="Srigonco AI"
+            className="w-full h-full object-cover"
+          />
         </div>
-        <span className="text-lg font-bold text-white">Srigonco AI</span>
+        <span className="text-lg font-bold text-white drop-shadow-sm">Srigonco AI</span>
       </Link>
     </div>
   )

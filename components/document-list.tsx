@@ -20,11 +20,11 @@ interface DocumentListProps {
 }
 
 const FILE_ICONS: Record<string, string> = {
-  'application/pdf': '📄',
-  'text/plain': '📝',
-  'text/csv': '📊',
-  'application/vnd.ms-excel': '📊',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📘',
+  'application/pdf': 'ðŸ“„',
+  'text/plain': 'ðŸ“',
+  'text/csv': 'ðŸ“Š',
+  'application/vnd.ms-excel': 'ðŸ“Š',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'ðŸ“œ',
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {

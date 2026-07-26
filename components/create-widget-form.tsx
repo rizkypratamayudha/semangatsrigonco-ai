@@ -132,7 +132,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
           type="text"
           value={welcomeMessage}
           onChange={(e) => setWelcomeMessage(e.target.value)}
-          placeholder="Contoh: Halo! Ada yang bisa dibantu? 👋"
+          placeholder="Contoh: Halo! Ada yang bisa dibantu?"
           className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
         />
         <p className="text-xs text-muted-foreground mt-1.5">Pesan yang muncul saat pertama kali user membuka chat</p>

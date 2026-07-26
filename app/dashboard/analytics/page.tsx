@@ -459,7 +459,7 @@ export default function AnalyticsPage() {
                       key={idx}
                       className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium border shadow-sm transition-all hover:scale-105 ${style}`}
                     >
-                      🏷️ {item.keyword}
+                      {item.keyword}
                       <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold ${idx === 0 ? 'bg-white text-[#07752f]' : 'bg-[#09923B]/15 text-[#07752f]'}`}>
                         {item.count}
                       </span>
