@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import ReactECharts from 'echarts-for-react'
@@ -192,9 +192,9 @@ function Mermaid({ chart }: { chart: string }) {
         </button>
         <div className="p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 flex flex-col gap-2">
           <p className="text-xs font-semibold flex items-center gap-1">
-            âš ï¸ Gagal menggambar diagram (Ada kesalahan sintaks)
+            Ã¢Å¡Â Ã¯Â¸Â Gagal menggambar diagram (Ada kesalahan sintaks)
           </p>
-          <pre className="text-[10px] font-mono overflow-x-auto whitespace-pre opacity-80 mt-1 max-h-[150px]">
+          <pre className="text-[10px] font-mono overflow-x-auto whitespace-pre opacity-80 mt-1 max-h-37.5">
             {chart}
           </pre>
         </div>
@@ -393,7 +393,7 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: widget.welcome_message || 'Halo! Ada yang bisa dibantu? 👋',
+      content: widget.welcome_message || 'Halo! Ada yang bisa dibantu? ðŸ‘‹',
     },
   ])
   const [inputValue, setInputValue] = useState('')
@@ -482,21 +482,28 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
           <div
             className={
               isExpanded
-                ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-3xl w-[92vw] max-w-[950px] h-[85vh] overflow-hidden shadow-2xl flex flex-col border border-gray-100 pointer-events-auto transition-all duration-200 ease-out will-change-[transform,opacity]'
-                : 'bg-white rounded-3xl w-[calc(100vw-2rem)] max-w-[380px] h-[min(550px,80vh)] overflow-hidden shadow-2xl flex flex-col border border-gray-100 pointer-events-auto transition-all duration-200 ease-out will-change-[transform,opacity] transform scale-100 origin-bottom-right'
+                ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-white rounded-[20px] w-[92vw] max-w-237.5 h-[85vh] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.12)] flex flex-col border border-gray-100 pointer-events-auto transition-all duration-300 ease-out will-change-[transform,opacity] animate-in fade-in slide-in-from-bottom-4'
+                : 'bg-white rounded-[20px] w-[calc(100vw-1.5rem)] sm:w-[calc(100vw-2rem)] max-w-105 h-[min(580px,85vh)] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.12)] flex flex-col border border-gray-100 pointer-events-auto transition-all duration-300 ease-out will-change-[transform,opacity] animate-in fade-in slide-in-from-bottom-4 origin-bottom-right'
             }
           >
-            {/* Header */}
-            <div className="p-4 flex items-center justify-between flex-shrink-0" style={{ backgroundColor: primaryColor }}>
+            {/* Header with Gradient */}
+            <div
+              className="px-5 flex items-center justify-between shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, #4D0D0D, #09923B)',
+                height: '76px',
+              }}
+            >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
+                <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shrink-0 shadow-inner">
+                  <img src="/logo%20chatbot-bg%20transparan.png" alt={widget.name} className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white text-sm">{widget.name}</h3>
-                  <p className="text-[11px] text-white/80">Online</p>
+                  <h3 className="font-bold text-white text-sm">{widget.name}</h3>
+                  <p className="text-[11px] text-white/80 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse" />
+                    Online
+                  </p>
                 </div>
               </div>
 
@@ -504,16 +511,16 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                 {/* Expand / Semi-Fullscreen Toggle Button */}
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors text-white cursor-pointer"
+                  className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/35 transition-all duration-250 text-white cursor-pointer"
                   title={isExpanded ? 'Kecilkan Chat' : 'Tampilan Semi-Fullscreen (Tengah)'}
                 >
                   {isExpanded ? (
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0l5 0m-5 0l0 5m11 5l5 5m0 0l-5 0m5 0l0-5" />
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 9L4 4m0 0l5 0m-5 0l0 5m11 5l5 5m0 0l-5 0m5 0l0-5" />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                     </svg>
                   )}
                 </button>
@@ -524,38 +531,40 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                     setIsChatOpen(false)
                     setIsExpanded(false)
                   }}
-                  className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/30 transition-colors text-white cursor-pointer"
+                  className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center hover:bg-white/35 transition-all duration-250 text-white cursor-pointer"
                   title="Minimize Chat"
                 >
-                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
               </div>
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 bg-gray-50 p-4 overflow-y-auto space-y-4">
+            <div className="flex-1 bg-[#FAFAFA] p-4 overflow-y-auto space-y-4">
               {messages.map((msg, index) => {
                 const isBot = msg.role === 'assistant'
                 return (
                   <div key={index} className={`flex gap-2.5 ${!isBot ? 'justify-end' : ''}`}>
                     {isBot && (
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: primaryColor }}>
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                        </svg>
+                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 shadow-sm">
+                        <img src="/logo%20chatbot-bg%20transparan.png" alt="Bot" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div
-                      className={`rounded-2xl px-4 py-2.5 shadow-sm max-w-[80%] ${
+                      className={`px-4 py-2.5 max-w-[90%] md:max-w-[80%] ${
                         isBot
-                          ? 'bg-white text-gray-800 rounded-tl-none'
-                          : 'text-white rounded-tr-none'
+                          ? 'rounded-[18px] rounded-tl-none bg-white text-gray-800 border border-[#E8E8E8] shadow-[0_1px_3px_rgba(0,0,0,0.04)]'
+                          : 'rounded-[18px] rounded-tr-none text-white shadow-sm'
                       }`}
-                      style={!isBot ? { backgroundColor: primaryColor } : undefined}
+                      style={
+                        !isBot
+                          ? { background: 'linear-gradient(135deg, #09923B, #16B34A)' }
+                          : { background: 'linear-gradient(135deg, #FFFFFF, #F7F2F2)' }
+                      }
                     >
-                      <div className="text-sm leading-relaxed">{formatMessageContent(msg.content)}</div>
+                      <div className="text-sm leading-relaxed wrap-anywhere">{formatMessageContent(msg.content)}</div>
                       
                       {isBot && msg.sources && msg.sources.length > 0 && (
                         <div className="mt-2 pt-2 border-t border-gray-100">
@@ -575,9 +584,9 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                       )}
                     </div>
                     {!isBot && (
-                      <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm" style={{ background: 'linear-gradient(135deg, #4D0D0D, #09923B)' }}>
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                       </div>
                     )}
@@ -591,25 +600,26 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                     <button
                       key={idx}
                       onClick={() => handleSend(q)}
-                      className="border-[1.5px] rounded-2xl rounded-bl-sm px-4 py-2 text-xs font-semibold text-left transition-all duration-300 shadow-sm w-fit cursor-pointer hover:-translate-y-0.75 hover:scale-[1.03] active:scale-[0.98] active:translate-y-0"
-                      style={{ 
-                        borderColor: `rgba(${primaryRgb}, 0.22)`, 
-                        color: primaryColor,
-                        backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                      className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-left transition-all duration-250 cursor-pointer border"
+                      style={{
+                        borderColor: '#4D0D0D',
+                        color: '#4D0D0D',
+                        backgroundColor: '#FFFFFF',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = primaryColor;
-                        e.currentTarget.style.color = '#ffffff';
-                        e.currentTarget.style.borderColor = 'transparent';
-                        e.currentTarget.style.boxShadow = `0 8px 20px rgba(${primaryRgb}, 0.35)`;
+                        e.currentTarget.style.backgroundColor = '#F6ECEC';
+                        e.currentTarget.style.borderColor = '#09923B';
+                        e.currentTarget.style.color = '#09923B';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
-                        e.currentTarget.style.color = primaryColor;
-                        e.currentTarget.style.borderColor = `rgba(${primaryRgb}, 0.22)`;
-                        e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.03)';
+                        e.currentTarget.style.backgroundColor = '#FFFFFF';
+                        e.currentTarget.style.borderColor = '#4D0D0D';
+                        e.currentTarget.style.color = '#4D0D0D';
                       }}
                     >
+                      <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
                       {q}
                     </button>
                   ))}
@@ -618,12 +628,10 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
               
               {loading && (
                 <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse" style={{ backgroundColor: primaryColor }}>
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
+                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 animate-pulse shadow-sm">
+                    <img src="/logo%20chatbot-bg%20transparan.png" alt="Bot" className="w-full h-full object-cover" />
                   </div>
-                  <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-1">
+                  <div className="rounded-[18px] rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-1" style={{ background: 'linear-gradient(135deg, #FFFFFF, #F7F2F2)', border: '1px solid #E8E8E8' }}>
                     <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                     <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -639,29 +647,31 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                 e.preventDefault()
                 handleSend()
               }}
-              className="p-4 bg-white border-t border-gray-100 flex-shrink-0"
+              className="p-4 bg-white border-t border-gray-100 shrink-0"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 bg-white border border-[#E5E7EB] rounded-[20px] px-4 py-1.5 transition-all duration-250 focus-within:border-[#09923B] focus-within:shadow-[0_0_0_3px_rgba(9,146,59,0.1)]">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ketik pesan..."
-                  className="flex-1 px-4 py-2.5 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:bg-white transition-all"
+                  className="flex-1 py-2 bg-transparent text-sm outline-none border-none placeholder:text-gray-400"
                   disabled={loading}
                 />
                 <button
                   type="submit"
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white hover:opacity-90 transition-opacity disabled:opacity-50"
-                  style={{ backgroundColor: primaryColor }}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-white transition-all duration-250 disabled:opacity-40 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 shrink-0"
+                  style={{
+                    background: 'linear-gradient(135deg, #09923B, #16B34A)',
+                    boxShadow: !loading && inputValue.trim() ? '0 2px 8px rgba(9,146,59,0.3)' : 'none',
+                  }}
                   disabled={loading || !inputValue.trim()}
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 </button>
               </div>
-              <p className="text-[10px] text-center text-muted-foreground mt-2">Powered by ChatToko</p>
             </form>
           </div>
         )}
@@ -670,7 +680,7 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
         <div className="flex items-center gap-2 pointer-events-auto">
           <button
             onClick={onClose}
-            className="bg-red-500 hover:bg-red-600 text-white px-3.5 py-2.5 rounded-2xl text-xs font-semibold shadow-xl transition-all flex items-center gap-1"
+            className="bg-red-500 hover:bg-red-600 text-white px-3.5 py-2.5 rounded-2xl text-xs font-semibold shadow-xl transition-all duration-250 flex items-center gap-1 hover:scale-105 active:scale-95"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -680,18 +690,23 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
 
           <button
             onClick={() => setIsChatOpen(!isChatOpen)}
-            className="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-105 active:scale-95 transition-all"
-            style={{ backgroundColor: primaryColor }}
-            title={isChatOpen ? "Minimize Chat" : "Open Chat"}
+            className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white transition-all duration-300 hover:scale-105 active:scale-95"
+            style={{
+              background: 'linear-gradient(135deg, #4D0D0D, #09923B)',
+              boxShadow: `0 8px 24px rgba(77,13,13,0.3)`,
+            }}
+            title={isChatOpen ? 'Minimize Chat' : 'Open Chat'}
           >
             {isChatOpen ? (
-              <svg className="w-6 h-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
+              <img
+                src="/logo%20chatbot-bg%20transparan.png"
+                alt="Srigonco AI"
+                className="w-full h-full object-cover"
+              />
             )}
           </button>
         </div>
@@ -699,4 +714,7 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
     </>
   )
 }
+
+
+
 

@@ -29,7 +29,7 @@ const navItems = [
     href: '/dashboard/analytics',
     label: 'Analytics',
     icon: (
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 20V10M12 20V4M6 20v-6" />
     ),
   },
   {
@@ -37,17 +37,14 @@ const navItems = [
     label: 'Pengguna',
     adminOnly: true,
     icon: (
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
     ),
   },
   {
     href: '/dashboard/settings',
     label: 'Pengaturan',
     icon: (
-      <>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </>
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM15 12a3 3 0 11-6 0 3 3 0 016 0z" />
     ),
   },
 ]
@@ -90,20 +87,22 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
   const sidebarContent = (
     <>
       {/* Logo */}
-      <div className="p-5 border-b border-white/10">
+      <div className="p-5 border-b border-white/10 bg-gradient-to-r from-[#4D0D0D] to-[#7A1515]">
         <Link id="tour-logo" href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
+          <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg ring-2 ring-white/20">
+            <img
+              src="/logo%20chatbot-bg%20transparan.png"
+              alt="Srigonco AI"
+              className="w-full h-full object-cover"
+            />
           </div>
-          <span className="text-xl font-bold text-white">Srigonco AI</span>
+          <span className="text-xl font-bold text-white drop-shadow-sm">Srigonco AI</span>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <div className="space-y-1.5">
+      <nav className="flex-1 p-3.5">
+        <div className="space-y-1">
           {filteredNavItems.map((item) => {
             const isActive = pathname === item.href
             let itemId = undefined
@@ -116,10 +115,10 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
                 key={item.href}
                 href={item.href}
                 id={itemId}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-white/20 text-white font-medium shadow-sm'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
+                    ? 'bg-gradient-to-r from-white/20 to-white/10 text-white font-medium shadow-lg shadow-black/10 backdrop-blur-sm border border-white/10'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white hover:translate-x-0.5'
                 }`}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,13 +132,13 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
       </nav>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-white/10 bg-gradient-to-r from-[#4D0D0D]/80 to-[#3A0909]/80 backdrop-blur-sm">
         <button
           id="tour-start-btn"
           onClick={() => {
             window.dispatchEvent(new Event('start-onboarding-tour'))
           }}
-          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 rounded-xl transition-colors mb-4 border border-white/10"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-white bg-gradient-to-r from-white/15 to-white/5 hover:from-white/25 hover:to-white/10 rounded-xl transition-all duration-200 mb-4 border border-white/10 shadow-inner shadow-white/5"
         >
           <svg className="w-4 h-4 text-white/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -147,11 +146,11 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
           Mulai Panduan Baru
         </button>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white font-semibold">
+          <div className="w-10 h-10 bg-gradient-to-br from-white/25 to-white/10 rounded-full flex items-center justify-center text-white font-semibold shadow-inner shadow-white/10">
             {userEmail?.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-white truncate">{userEmail}</div>
+            <div className="text-sm font-medium text-white/90 truncate drop-shadow-sm">{userEmail}</div>
           </div>
         </div>
         <LogoutButton />
@@ -162,7 +161,7 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex fixed top-0 left-0 w-64 h-screen bg-[#4D0D0D] border-r border-white/10 flex-col z-40">
+      <aside className="hidden md:flex fixed top-0 left-0 w-64 h-screen bg-gradient-to-b from-[#4D0D0D] via-[#5C1010] to-[#3A0909] border-r border-white/10 flex-col z-40 shadow-2xl">
         {sidebarContent}
       </aside>
 
@@ -175,7 +174,7 @@ export default function Sidebar({ userEmail, userRole = 'user' }: SidebarProps) 
             onClick={() => setMobileOpen(false)}
           />
           {/* Sidebar Panel */}
-          <aside className="absolute top-0 left-0 w-72 h-full bg-[#4D0D0D] border-r border-white/10 flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
+          <aside className="absolute top-0 left-0 w-72 h-full bg-gradient-to-b from-[#4D0D0D] via-[#5C1010] to-[#3A0909] border-r border-white/10 flex flex-col shadow-2xl animate-in slide-in-from-left duration-200">
             {sidebarContent}
           </aside>
         </div>

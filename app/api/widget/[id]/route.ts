@@ -77,6 +77,7 @@ export async function GET(
   var WELCOME_MSG = ${JSON.stringify(welcome)};
   var PRIMARY_COLOR = '${color}';
   var SUGGESTED_QUESTIONS = ${JSON.stringify(suggestedQuestions)};
+  var LOGO_URL = API_URL + '/logo%20chatbot-bg%20transparan.png';
 
   if (!window.srigoncoEchartsLoaded) {
     window.srigoncoEchartsLoaded = true;
@@ -110,23 +111,27 @@ export async function GET(
 
       #bubble {
         width: 60px; height: 60px;
-        background: \${PRIMARY_COLOR}; border-radius: 50%; cursor: pointer;
+        background: linear-gradient(135deg, #4D0D0D, #09923B);
+        border-radius: 50%; cursor: pointer;
         display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transition: transform 0.2s;
+        box-shadow: 0 8px 24px rgba(77,13,13,0.3);
+        transition: all 0.3s ease;
         z-index: 99999;
+        overflow: hidden; padding: 0;
       }
-      #bubble:hover { transform: scale(1.1); }
+      #bubble:hover { transform: scale(1.05); box-shadow: 0 12px 32px rgba(77,13,13,0.4); }
+      #bubble img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; border-radius: 50% !important; }
 
       #window {
         display: none; position: fixed; bottom: 100px; right: 24px;
-        width: 380px; height: 550px; background: white; border-radius: 24px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        width: 380px; max-width: calc(100vw - 24px); height: 580px; max-height: 85vh;
+        background: white; border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
         overflow: hidden; flex-direction: column;
-        border: 1px solid #f0f0f0;
+        border: none;
         z-index: 99998;
-        will-change: transform;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: transform, opacity;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       #window.expanded {
@@ -139,44 +144,51 @@ export async function GET(
         width: 92vw !important;
         max-width: 950px !important;
         height: 85vh !important;
-        border-radius: 24px !important;
+        border-radius: 20px !important;
         z-index: 99998 !important;
       }
 
       .hdr {
-        background: \${PRIMARY_COLOR}; padding: 16px; color: white;
+        background: linear-gradient(135deg, #4D0D0D, #09923B);
+        height: 76px; padding: 0 20px; color: white;
         display: flex; align-items: center; justify-content: space-between;
         flex-shrink: 0;
       }
       .hdr-l { display: flex; align-items: center; gap: 12px; }
       .hdr-av {
-        width: 40px; height: 40px; background: rgba(255,255,255,0.2);
+        width: 40px; height: 40px; background: transparent;
         border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        overflow: hidden; padding: 0;
       }
-      .hdr-nm { font-weight: 600; font-size: 14px; }
+      .hdr-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .hdr-nm { font-weight: 700; font-size: 14px; }
       .hdr-st { font-size: 11px; color: rgba(255,255,255,0.8); }
       .hdr-x {
         width: 32px; height: 32px; background: rgba(255,255,255,0.2);
         border-radius: 8px; display: flex; align-items: center; justify-content: center;
         cursor: pointer; border: none; transition: background 0.2s; color: white;
       }
-      .hdr-x:hover { background: rgba(255,255,255,0.3); }
+      .hdr-x:hover { background: rgba(255,255,255,0.35); }
 
       .msgs {
-        flex: 1; overflow-y: auto; padding: 16px; background: #f9fafb;
+        flex: 1; overflow-y: auto; padding: 16px; background: #FAFAFA;
         display: flex; flex-direction: column; gap: 12px;
       }
 
-      .m { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 13px; line-height: 1.5; word-wrap: break-word; }
-      .mu { background: \${PRIMARY_COLOR}; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-      .mb { background: white; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+      .m { max-width: 80%; padding: 12px 16px; font-size: 13px; line-height: 1.5; word-wrap: break-word; overflow-wrap: anywhere; }
+      .mu { background: linear-gradient(135deg, #09923B, #16B34A); color: white; align-self: flex-end; border-radius: 18px; border-bottom-right-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+      .mb { background: linear-gradient(135deg, #FFFFFF, #F7F2F2); color: #333; align-self: flex-start; border-radius: 18px; border-bottom-left-radius: 4px; border: 1px solid #E8E8E8; box-shadow: 0 1px 3px rgba(0,0,0,0.04); word-wrap: break-word; overflow-wrap: anywhere; }
 
       .mbw { display: flex; gap: 8px; align-self: flex-start; }
       .mbi {
         width: 32px; height: 32px; border-radius: 50%;
-        background: \${PRIMARY_COLOR}; display: flex; align-items: center;
+        background: transparent;
+        display: flex; align-items: center;
         justify-content: center; flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        overflow: hidden; padding: 0;
       }
+      .mbi img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
       .typ { display: flex; gap: 4px; padding: 12px 16px; }
       .typ span {
@@ -190,23 +202,36 @@ export async function GET(
         40% { transform: translateY(-6px); }
       }
 
-      .inp { padding: 12px 16px; border-top: 1px solid #f0f0f0; background: white; flex-shrink: 0; }
-      .inp fieldset { display: flex; gap: 8px; border: none; padding: 0; margin: 0; }
+      .inp { padding: 16px 16px; border-top: 1px solid #f0f0f0; background: white; flex-shrink: 0; }
+      .inp-wrap {
+        display: flex; align-items: center; gap: 12px;
+        background: white; border: 1px solid #E5E7EB;
+        border-radius: 20px; padding: 6px 6px 6px 16px;
+        transition: all 0.25s;
+      }
+      .inp-wrap:focus-within {
+        border-color: #09923B;
+        box-shadow: 0 0 0 3px rgba(9,146,59,0.1);
+      }
       .inp input {
-        flex: 1; border: 1px solid #e5e7eb; border-radius: 12px;
-        padding: 10px 14px; font-size: 13px; outline: none;
-        font-family: system-ui, -apple-system, sans-serif;
+        flex: 1; border: none; outline: none;
+        font-size: 13px; font-family: system-ui, -apple-system, sans-serif;
+        background: transparent;
       }
-      .inp input:focus { border-color: \${PRIMARY_COLOR}; }
+      .inp input::placeholder { color: #9CA3AF; }
       .inp button {
-        width: 40px; height: 40px; background: \${PRIMARY_COLOR};
-        border: none; border-radius: 12px; cursor: pointer;
+        width: 36px; height: 36px;
+        background: linear-gradient(135deg, #09923B, #16B34A);
+        border: none; border-radius: 50%; cursor: pointer;
         display: flex; align-items: center; justify-content: center;
+        transition: all 0.25s;
+        box-shadow: 0 2px 8px rgba(9,146,59,0.3);
+        flex-shrink: 0;
       }
-      .inp button:hover { opacity: 0.9; }
-      .inp button:disabled { opacity: 0.5; cursor: not-allowed; }
+      .inp button:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(9,146,59,0.4); }
+      .inp button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-      .ftr { text-align: center; padding: 8px; font-size: 10px; color: #999; flex-shrink: 0; }
+      .ftr { text-align: center; padding: 0; font-size: 10px; color: #999; flex-shrink: 0; height: 0; }
       .sug-wrap {
         display: flex;
         flex-wrap: wrap;
@@ -220,61 +245,55 @@ export async function GET(
         will-change: transform, opacity;
       }
       .sug-pill {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        border: 1.5px solid rgba(${primaryRgbStr}, 0.22);
-        color: \${PRIMARY_COLOR};
-        border-radius: 20px;
-        border-bottom-left-radius: 6px;
-        padding: 8px 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 9999px;
+        padding: 8px 16px;
         font-size: 11.5px;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: all 0.25s ease;
         font-weight: 600;
         text-align: left;
         line-height: 1.3;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.03);
         width: fit-content;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        border: 1px solid #4D0D0D;
+        background: #FFFFFF;
+        color: #4D0D0D;
       }
       .sug-pill:hover {
-        background: \${PRIMARY_COLOR};
-        color: white;
-        border-color: transparent;
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 8px 20px rgba(${primaryRgbStr}, 0.35);
+        background: #F6ECEC;
+        border-color: #09923B;
+        color: #09923B;
       }
-      .sug-pill:active {
-        transform: translateY(-1px) scale(0.98);
-      }
+      .sug-pill .sug-icon { transition: color 0.25s ease; flex-shrink: 0; }
       @keyframes sugBounceIn {
         from { opacity: 0; transform: translateY(12px) scale(0.95); }
         to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
       }
     </style>
 
     <div id="overlay"></div>
     <div id="bubble">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-      </svg>
+      <img src="\${LOGO_URL}" alt="\${WIDGET_NAME}" />
     </div>
     <div id="window">
       <div class="hdr">
         <div class="hdr-l">
           <div class="hdr-av">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <img src="\${LOGO_URL}" alt="\${WIDGET_NAME}" />
           </div>
           <div>
             <div class="hdr-nm">\${WIDGET_NAME}</div>
-            <div class="hdr-st">Online</div>
+            <div class="hdr-st" style="display:flex;align-items:center;gap:6px;"><span style="width:6px;height:6px;background:#22C55E;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>Online</div>
           </div>
         </div>
         <div style="display:flex; gap:6px; align-items:center;">
-          <button class="hdr-x" id="expand-btn" title="Tampilan Semi-Fullscreen (Tengah)">
+          <button class="hdr-x" id="expand-btn" title="Tampilan Semi-Fullscreen">
             <svg id="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
           </button>
           <button class="hdr-x" id="close" title="Minimize Chat">
@@ -284,14 +303,14 @@ export async function GET(
       </div>
       <div class="msgs" id="msgs"></div>
       <div class="inp">
-        <fieldset>
+        <div class="inp-wrap">
           <input id="inp" type="text" placeholder="Ketik pesan..." />
           <button id="send" disabled>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
           </button>
-        </fieldset>
+        </div>
       </div>
-      <div class="ftr">Powered by Srigonco AI</div>
+      <div class="ftr"></div>
     </div>
   \`;
 
@@ -480,7 +499,7 @@ export async function GET(
       wrap.className = 'mbw';
       var ic = document.createElement('div');
       ic.className = 'mbi';
-      ic.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+      ic.innerHTML = '<img src="' + LOGO_URL + '" alt="Bot" />';
       var m = document.createElement('div');
       m.className = 'm mb';
       wrap.appendChild(ic);
@@ -497,7 +516,7 @@ export async function GET(
     wrap.id = 'typ';
     var ic = document.createElement('div');
     ic.className = 'mbi';
-    ic.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+    ic.innerHTML = '<img src="' + LOGO_URL + '" alt="Bot" />';
     var d = document.createElement('div');
     d.className = 'm mb typ';
     d.innerHTML = '<span></span><span></span><span></span>';
@@ -533,7 +552,7 @@ export async function GET(
     SUGGESTED_QUESTIONS.forEach(function(q) {
       var pill = document.createElement('button');
       pill.className = 'sug-pill';
-      pill.textContent = q;
+      pill.innerHTML = '<svg class="sug-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg><span>' + q + '</span>';
       pill.onclick = function() {
         inp.value = q;
         doSend();
