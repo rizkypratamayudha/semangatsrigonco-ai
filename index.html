@@ -46,7 +46,7 @@
             </p>
             
             <div class="button-group animate-slide-up" style="animation-delay: 300ms; animation-fill-mode: both;">
-                <a href="#" class="btn btn-primary">
+                <a href="javascript:void(0);" class="btn btn-primary" id="btn-open-chat" onclick="openChatWidget()">
                     <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M21 15A2 2 0 0 1 19 17H7L3 21V5A2 2 0 0 1 5 3H19A2 2 0 0 1 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -79,14 +79,55 @@
             new Typed('#typed-title', {
                 strings: ['Srigonco AI<br><span class="highlight">Chatbot</span>'],
                 typeSpeed: 60,
-                backSpeed: 40,       // Kecepatan menghapus
-                backDelay: 2000,     // Jeda waktu sebelum mulai menghapus (2 detik)
-                loop: true,          // Mengulang animasi terus menerus
+                backSpeed: 40,       
+                backDelay: 2000,    
+                loop: true,          
                 showCursor: true,
                 cursorChar: '|',
                 autoInsertCss: true
             });
         });
+
+        function openChatWidget() {
+            // Try common widget button/bubble selectors
+            var selectors = [
+                '#chattoko-widget-button',
+                '.chattoko-widget-button',
+                '[id*="chattoko"] button',
+                '[class*="chattoko"] button',
+                '#chat-widget-button',
+                '.chat-widget-button',
+                '[id*="widget"] button',
+                'iframe[src*="chattoko"]',
+                'div[id*="chat"] button',
+                'div[class*="chat-bubble"]',
+                'div[class*="widget"] button'
+            ];
+            
+            for (var i = 0; i < selectors.length; i++) {
+                var el = document.querySelector(selectors[i]);
+                if (el) {
+                    el.click();
+                    return;
+                }
+            }
+            
+            // Fallback: try to find any floating button/bubble at bottom-right
+            var allButtons = document.querySelectorAll('button, div[role="button"]');
+            for (var j = 0; j < allButtons.length; j++) {
+                var style = window.getComputedStyle(allButtons[j]);
+                if (style.position === 'fixed' && 
+                    parseInt(style.bottom) < 100 && 
+                    parseInt(style.right) < 100) {
+                    allButtons[j].click();
+                    return;
+                }
+            }
+
+            // Last resort: open widget URL directly
+            window.open('https://srigonco-chatbot.chattoko.biz.id/api/widget/e0bd1634-3326-4aac-9e4d-51b6f2949829', '_blank');
+        }
     </script>
 </body>
+<script src="https://srigonco-chatbot.chattoko.biz.id/api/widget/e0bd1634-3326-4aac-9e4d-51b6f2949829" async></script>
 </html>
