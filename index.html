@@ -89,43 +89,34 @@
         });
 
         function openChatWidget() {
-            // Try common widget button/bubble selectors
-            var selectors = [
-                '#chattoko-widget-button',
-                '.chattoko-widget-button',
-                '[id*="chattoko"] button',
-                '[class*="chattoko"] button',
-                '#chat-widget-button',
-                '.chat-widget-button',
-                '[id*="widget"] button',
-                'iframe[src*="chattoko"]',
-                'div[id*="chat"] button',
-                'div[class*="chat-bubble"]',
-                'div[class*="widget"] button'
-            ];
-            
-            for (var i = 0; i < selectors.length; i++) {
-                var el = document.querySelector(selectors[i]);
-                if (el) {
-                    el.click();
+            var host = document.getElementById('chatbot-widget-host');
+            if (host && host.shadowRoot) {
+                var bubble = host.shadowRoot.getElementById('bubble');
+                var win = host.shadowRoot.getElementById('window');
+                var inp = host.shadowRoot.getElementById('inp');
+                if (bubble) {
+                    bubble.click();
+                    return;
+                }
+                // Fallback: directly show the window
+                if (win) {
+                    win.style.display = 'flex';
+                    if (bubble) bubble.style.display = 'none';
+                    if (inp) inp.focus();
                     return;
                 }
             }
-            
-            // Fallback: try to find any floating button/bubble at bottom-right
-            var allButtons = document.querySelectorAll('button, div[role="button"]');
-            for (var j = 0; j < allButtons.length; j++) {
-                var style = window.getComputedStyle(allButtons[j]);
-                if (style.position === 'fixed' && 
-                    parseInt(style.bottom) < 100 && 
-                    parseInt(style.right) < 100) {
-                    allButtons[j].click();
-                    return;
+            // Widget belum loaded, coba tunggu sebentar lalu retry
+            setTimeout(function() {
+                var host2 = document.getElementById('chatbot-widget-host');
+                if (host2 && host2.shadowRoot) {
+                    var bubble2 = host2.shadowRoot.getElementById('bubble');
+                    if (bubble2) {
+                        bubble2.click();
+                        return;
+                    }
                 }
-            }
-
-            // Last resort: open widget URL directly
-            window.open('https://srigonco-chatbot.chattoko.biz.id/api/widget/e0bd1634-3326-4aac-9e4d-51b6f2949829', '_blank');
+            }, 1000);
         }
     </script>
 </body>
