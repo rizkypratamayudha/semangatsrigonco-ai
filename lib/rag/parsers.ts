@@ -1,4 +1,3 @@
-// @ts-ignore
 import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 import { parse } from 'csv-parse/sync';
@@ -57,7 +56,7 @@ export async function parsePDF(input: string | Buffer): Promise<ParsedFile> {
 
 export async function parseDOCX(buffer: Buffer): Promise<ParsedFile> {
   const result = await mammoth.extractRawText({ buffer });
-  return { text: result.value, metadata: {} };
+  return { text: result.value || '', metadata: {} };
 }
 
 export function parseTXT(buffer: Buffer): ParsedFile {
@@ -102,18 +101,19 @@ export function parseCSV(buffer: Buffer): ParsedFile {
   return { text, metadata: { recordCount: lines.length } };
 }
 
-export function parseFile(input: string | Buffer, fileType: string): Promise<ParsedFile> {
+export function parseFile(buffer: Buffer, fileType: string): Promise<ParsedFile> {
   switch (fileType.toLowerCase()) {
     case 'application/pdf':
-      return parsePDF(input);
+      return parsePDF(buffer);
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-      return parseDOCX(Buffer.isBuffer(input) ? input : readFileSync(input));
+      return parseDOCX(buffer);
     case 'text/plain':
-      return Promise.resolve(parseTXT(Buffer.isBuffer(input) ? input : readFileSync(input)));
+      return Promise.resolve(parseTXT(buffer));
     case 'text/csv':
     case 'application/vnd.ms-excel':
-      return Promise.resolve(parseCSV(Buffer.isBuffer(input) ? input : readFileSync(input)));
+      return Promise.resolve(parseCSV(buffer));
     default:
-      return Promise.resolve(parseTXT(Buffer.isBuffer(input) ? input : readFileSync(input)));
+      return Promise.resolve(parseTXT(buffer));
   }
 }
+

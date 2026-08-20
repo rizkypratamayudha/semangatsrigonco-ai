@@ -139,9 +139,6 @@ export default function LoginPage() {
                 <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500" />
                 <span className="text-sm text-muted-foreground">Ingat saya</span>
               </label>
-              <Link href="/forgot-password" className="text-sm text-green-600 hover:text-green-700 font-medium">
-                Lupa password?
-              </Link>
             </div>
 
             <button

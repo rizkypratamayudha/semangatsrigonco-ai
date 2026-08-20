@@ -4,9 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { chunkText } from '@/lib/rag/chunking';
 import { generateAndStoreEmbeddings } from '@/lib/rag/embeddings';
 import { parseFile } from '@/lib/rag/parsers';
-import { writeFileSync, mkdirSync, existsSync, unlinkSync, readFileSync } from 'fs';
-import { join } from 'path';
-import { tmpdir } from 'os';
+
+// Vercel serverless function max duration (60s max on Pro/Hobby limits)
+export const maxDuration = 60;
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = [
@@ -51,15 +51,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save to temp file
-    const uploadDir = join(tmpdir(), 'uploads');
-    if (!existsSync(uploadDir)) mkdirSync(uploadDir, { recursive: true });
-
-    const ext = file.name.split('.').pop() || 'bin';
-    const tmpFile = join(uploadDir, `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
-
     const arrayBuffer = await file.arrayBuffer();
-    writeFileSync(tmpFile, Buffer.from(arrayBuffer));
+    const buffer = Buffer.from(arrayBuffer);
 
     // Insert document record via Prisma to bypass RLS policy (42501)
     const doc = await prisma.documents.create({
@@ -73,8 +66,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Process document and generate embeddings
-    await processInBackground(doc.id, tmpFile, file.type, supabase);
+    // Process document buffer and generate embeddings
+    await processDocument(doc.id, buffer, file.type, supabase);
 
     // Fetch final document status via Prisma
     const finalDoc = await prisma.documents.findUnique({
@@ -99,23 +92,22 @@ export async function POST(request: NextRequest) {
       filename: file.name,
       status: finalDoc?.status || 'ready',
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: error?.message || 'Internal server error' },
       { status: 500 }
     );
   }
 }
 
-async function processInBackground(
+async function processDocument(
   docId: string,
-  filePath: string,
+  buffer: Buffer,
   fileType: string,
   supabase: any
 ) {
   try {
-    const buffer = readFileSync(filePath);
     const parsed = await parseFile(buffer, fileType);
     const text = parsed.text;
 
@@ -127,8 +119,8 @@ async function processInBackground(
     }
 
     await storeChunks(docId, text, supabase);
-  } catch (error) {
-    console.error('Background processing error:', error);
+  } catch (error: any) {
+    console.error('Document processing error:', error);
     await prisma.documents.update({
       where: { id: docId },
       data: {
@@ -136,10 +128,6 @@ async function processInBackground(
         error_message: error instanceof Error ? error.message : 'Processing failed',
       },
     });
-  } finally {
-    try {
-      unlinkSync(filePath);
-    } catch {}
   }
 }
 

@@ -62,6 +62,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nama widget wajib diisi' }, { status: 400 });
     }
 
+    // Pengecekan batasan: Setiap email / akun pengguna hanya diperbolehkan membuat maksimal 1 widget
+    const existingCount = await prisma.widget.count({
+      where: { userId: user.id },
+    });
+
+    if (existingCount >= 1) {
+      return NextResponse.json(
+        { error: 'Setiap akun email hanya diperbolehkan membuat 1 widget.' },
+        { status: 400 }
+      );
+    }
+
     // Create widget using Prisma to bypass client-side RLS restrictions cleanly
     const newWidget = await prisma.widget.create({
       data: {

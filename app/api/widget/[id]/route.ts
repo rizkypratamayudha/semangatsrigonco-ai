@@ -36,6 +36,7 @@ export async function GET(
       return new NextResponse('Missing Origin or Referer header for domain validation.', { status: 403 });
     }
     
+    
     // Clean trailing slashes for comparison
     const cleanRequestDomain = requestDomain.replace(/\/$/, '');
     
