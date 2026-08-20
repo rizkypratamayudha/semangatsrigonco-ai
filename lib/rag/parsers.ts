@@ -2,7 +2,7 @@
 import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 import { parse } from 'csv-parse/sync';
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 
 export interface ParsedFile {
   text: string;
