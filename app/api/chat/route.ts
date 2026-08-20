@@ -375,7 +375,7 @@ export async function POST(request: NextRequest) {
         const searchResults = await searchSimilarChunks(
           queryEmbedding,
           widgetId,
-          3,
+          5,
           supabase
         );
         relevantChunks = searchResults;
@@ -384,8 +384,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Filter chunks by similarity threshold (0.50 is optimal for precise matching)
-    const SIMILARITY_THRESHOLD = 0.50;
+    // Filter chunks by similarity threshold (0.30 is optimal for precise semantic matching without false negatives)
+    const SIMILARITY_THRESHOLD = 0.30;
     const filteredChunks = relevantChunks.filter(chunk => chunk.similarity >= SIMILARITY_THRESHOLD);
 
     // Try to extract contact support info from documents if user is stuck/repeating questions
