@@ -20,11 +20,11 @@ interface DocumentListProps {
 }
 
 const FILE_ICONS: Record<string, string> = {
-  'application/pdf': 'ðŸ“„',
-  'text/plain': 'ðŸ“',
-  'text/csv': 'ðŸ“Š',
-  'application/vnd.ms-excel': 'ðŸ“Š',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'ðŸ“œ',
+  'application/pdf': '\u{1F4C4}', // 📄
+  'text/plain': '\u{1F4DD}', // 📝
+  'text/csv': '\u{1F4CA}', // 📊
+  'application/vnd.ms-excel': '\u{1F4CA}', // 📊
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '\u{1F4DC}', // 📜
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -148,44 +148,48 @@ export default function DocumentList({ widgetId, refreshTrigger }: DocumentListP
         return (
           <div
             key={doc.id}
-            className="flex items-center gap-4 p-4 bg-white rounded-xl border border-border hover:border-[#09923B]/40 transition-colors"
+            className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-white rounded-xl border border-border hover:border-[#09923B]/40 transition-colors"
           >
-            {/* File Icon */}
-            <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-xl">
-              {FILE_ICONS[doc.file_type] || '📄'}
-            </div>
+            {/* File Icon + Info */}
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-xl shrink-0">
+                {FILE_ICONS[doc.file_type] || '\u{1F4C4}'}
+              </div>
 
-            {/* File Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="font-medium text-sm truncate">{doc.filename}</p>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                  {statusInfo.label}
-                </span>
+              {/* File Info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start gap-2 flex-wrap">
+                  <p className="font-medium text-sm wrap-break-word min-w-0 flex-1">{doc.filename}</p>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 whitespace-nowrap ${statusInfo.color}`}>
+                    {statusInfo.label}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
+                  <span className="whitespace-nowrap">{formatFileSize(doc.file_size)}</span>
+                  {doc.total_chunks && <span className="whitespace-nowrap">{doc.total_chunks} chunks</span>}
+                  <span className="whitespace-nowrap">{new Date(doc.created_at).toLocaleDateString('id-ID')}</span>
+                </div>
+                {doc.error_message && (
+                  <p className="text-xs text-red-500 mt-1 wrap-break-word">{doc.error_message}</p>
+                )}
               </div>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                <span>{formatFileSize(doc.file_size)}</span>
-                {doc.total_chunks && <span>{doc.total_chunks} chunks</span>}
-                <span>{new Date(doc.created_at).toLocaleDateString('id-ID')}</span>
-              </div>
-              {doc.error_message && (
-                <p className="text-xs text-red-500 mt-1">{doc.error_message}</p>
-              )}
             </div>
 
             {/* Actions */}
-            <button
-              onClick={() => {
-                setDeleteConfirmId(doc.id)
-                setDeleteConfirmName(doc.filename)
-              }}
-              className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              title="Hapus"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
+            <div className="flex sm:block self-end sm:self-auto">
+              <button
+                onClick={() => {
+                  setDeleteConfirmId(doc.id)
+                  setDeleteConfirmName(doc.filename)
+                }}
+                className="p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
+                title="Hapus"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
           </div>
         )
       })}
@@ -200,7 +204,7 @@ export default function DocumentList({ widgetId, refreshTrigger }: DocumentListP
               </svg>
             </div>
             <h3 className="font-bold text-lg text-gray-800 mb-2">Hapus Dokumen?</h3>
-            <p className="text-sm text-gray-500 mb-6">Apakah Anda yakin ingin menghapus dokumen <strong className="text-gray-700">"{deleteConfirmName}"</strong>? Tindakan ini tidak dapat dibatalkan.</p>
+            <p className="text-sm text-gray-500 mb-6">Apakah Anda yakin ingin menghapus dokumen <strong className="text-gray-700">&ldquo;{deleteConfirmName}&rdquo;</strong>? Tindakan ini tidak dapat dibatalkan.</p>
             <div className="flex gap-3 w-full">
               <button 
                 onClick={() => {

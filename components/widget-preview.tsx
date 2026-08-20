@@ -11,12 +11,12 @@ interface Widget {
   primary_color: string | null
   created_at: string
   suggested_questions?: string[]
+  api_token?: string | null
 }
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
-  sources?: Array<{ filename: string; content: string; similarity: number }>
 }
 
 interface WidgetPreviewProps {
@@ -95,6 +95,38 @@ function sanitizeMermaid(chart: string): string {
     .join('\n')
 }
 
+function mermaidToPlainText(chart: string): string[] {
+  try {
+    const lines = chart
+      .replace(/\\n/g, '\n')
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l && !/^(graph|flowchart|sequenceDiagram|classDiagram|erDiagram|gantt|pie|%%|title|accTitle|accDescr)/i.test(l));
+
+    const steps: string[] = [];
+    for (const line of lines) {
+      // Hanya ambil baris yang punya label node (bukan sekadar id node kosong)
+      const hasLabel = /\[([^\]]*)\]|\(([^)]*)\)|\{([^}]*)\}/.test(line);
+      // Buang label edge seperti "D -- Ya --> E" menjadi "D --> E"
+      const noEdgeLabels = line.replace(/\s*--\s+[A-Za-z0-9\s/]+\s+-->\s*/g, ' --> ');
+      const clean = noEdgeLabels.replace(/[;"]/g, '');
+      const parts = clean.split(/\s*-{2,}>\s*|\s*==>\s*/);
+      const nodes = parts
+        .map((p) => {
+          const m = p.match(/\[([^\]]*)\]|\(([^)]*)\)|\{([^}]*)\}/);
+          return m ? (m[1] || m[2] || m[3]).trim() : p.trim();
+        })
+        .filter((n) => n !== '' && !/^[A-Za-z0-9_]{1,3}$/.test(n));
+      if (hasLabel && nodes.length > 0) {
+        steps.push(nodes.join(' \u2192 '));
+      }
+    }
+    return steps.slice(0, 12);
+  } catch {
+    return [];
+  }
+}
+
 function Mermaid({ chart }: { chart: string }) {
   const elementRef = useRef<HTMLDivElement>(null)
   const [svg, setSvg] = useState<string>('')
@@ -103,6 +135,7 @@ function Mermaid({ chart }: { chart: string }) {
   useEffect(() => {
     // Generate valid HTML ID starting with a letter
     const id = `mermaidchart-${Math.floor(Math.random() * 1000000)}`
+    let cancelled = false
 
     async function renderChart() {
       try {
@@ -120,20 +153,29 @@ function Mermaid({ chart }: { chart: string }) {
 
         try {
           const { svg: renderedSvg } = await mermaid.render(id, cleanChart)
-          setSvg(renderedSvg)
+          if (!cancelled) setSvg(renderedSvg)
         } catch {
-          // Fallback to raw chart if sanitizeMermaid caused a syntax error
-          const rawId = `${id}-raw`
-          const { svg: rawSvg } = await mermaid.render(rawId, chart.trim())
-          setSvg(rawSvg)
+          // Fallback ke kode asli jika sanitasi justru menyebabkan error sintaks
+          try {
+            const rawId = `${id}-raw`
+            const { svg: rawSvg } = await mermaid.render(rawId, chart.trim())
+            if (!cancelled) setSvg(rawSvg)
+          } catch {
+            // Kode asli juga tidak valid - tampilkan fallback teks, bukan crash
+            if (!cancelled) setError(true)
+          }
         }
-      } catch (err) {
-        console.error('Mermaid render error:', err)
-        setError(true)
+      } catch {
+        // Jangan lempar error ke overlay Next.js; cukup tampilkan fallback
+        if (!cancelled) setError(true)
       }
     }
 
     renderChart()
+
+    return () => {
+      cancelled = true
+    }
   }, [chart])
 
   const [copied, setCopied] = useState(false)
@@ -168,35 +210,35 @@ function Mermaid({ chart }: { chart: string }) {
       setDownloaded(true)
       setTimeout(() => setDownloaded(false), 2000)
     } catch (err) {
-      console.error('Failed to download SVG:', err)
+      console.warn('Failed to download SVG:', err instanceof Error ? err.message : err)
     }
   }
 
   if (error) {
+    const plainSteps = mermaidToPlainText(chart)
+
     return (
       <div className="relative group w-full my-2">
-        <button
-          onClick={handleCopy}
-          className="absolute top-2 right-2 z-10 bg-white/90 backdrop-blur hover:bg-white text-gray-500 hover:text-[#09923B] p-2 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center cursor-pointer transition-all hover:scale-105"
-          title="Salin Kode Diagram"
-        >
-          {copied ? (
-            <svg className="w-4 h-4 text-[#09923B] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-            </svg>
+        <div className="p-4 bg-amber-50 text-amber-800 rounded-2xl border border-amber-200 flex flex-col gap-2">
+          {plainSteps.length > 0 ? (
+            <>
+              <p className="text-xs font-semibold flex items-center gap-1">
+                {'\u{1F4CB}'} Alur proses:
+              </p>
+              <ul className="space-y-1.5 text-xs leading-relaxed">
+                {plainSteps.map((step, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                    <span className="wrap-break-word">{step}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
           ) : (
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-            </svg>
+            <p className="text-xs font-medium flex items-center gap-1">
+              {'\u{26A0}\u{FE0F}'} Diagram tidak dapat ditampilkan.
+            </p>
           )}
-        </button>
-        <div className="p-4 bg-red-50 text-red-600 rounded-2xl border border-red-100 flex flex-col gap-2">
-          <p className="text-xs font-semibold flex items-center gap-1">
-            Ã¢Å¡Â Ã¯Â¸Â Gagal menggambar diagram (Ada kesalahan sintaks)
-          </p>
-          <pre className="text-[10px] font-mono overflow-x-auto whitespace-pre opacity-80 mt-1 max-h-37.5">
-            {chart}
-          </pre>
         </div>
       </div>
     )
@@ -307,7 +349,7 @@ function ChartComponent({ jsonStr }: { jsonStr: string }) {
       </div>
     )
   } catch (err) {
-    console.error('Failed to parse chart JSON:', err)
+    console.warn('Failed to parse chart JSON:', err instanceof Error ? err.message : err)
     return (
       <div className="p-3 bg-red-50 text-red-600 rounded-xl text-xs">
         Gagal memuat grafik data
@@ -320,6 +362,58 @@ function formatMessageContent(text: string) {
   if (!text) return '';
 
   const cleanText = text.trim();
+  const contactStart = cleanText.search(/Data Desa Srigonco\s+Nama kepala desa:/i);
+  if (contactStart !== -1) {
+    const intro = cleanText.slice(0, contactStart).trim();
+    const contactText = cleanText.slice(contactStart);
+    const contact = {
+      head: contactText.match(/Nama kepala desa:\s*(.*?)\s*Alamat kantor desa:/i)?.[1] || '',
+      address: contactText.match(/Alamat kantor desa:\s*(.*?)\s*Contact center:/i)?.[1] || '',
+      phone: contactText.match(/Contact center:\s*(\+?[\d\s-]+)/i)?.[1]?.trim() || '',
+      hours: contactText.match(/Jam layanan:\s*(.*?)\s*Email:/i)?.[1] || '',
+      email: contactText.match(/Email:\s*([^\s]+@[^\s]+)\s*Instagram:/i)?.[1] || '',
+      instagram: contactText.match(/Instagram:\s*(https?:\/\/\S+)/i)?.[1] || '',
+      tiktok: contactText.match(/Tiktok:\s*(https?:\/\/\S+)/i)?.[1] || '',
+      youtube: contactText.match(/Youtube:\s*(https?:\/\/\S+)/i)?.[1] || '',
+    };
+    const rows = [
+      ['Kepala Desa', contact.head, null],
+      ['Alamat Kantor', contact.address, null],
+      ['Contact Center', contact.phone, contact.phone ? `tel:${contact.phone.replace(/[^\d+]/g, '')}` : null],
+      ['Jam Layanan', contact.hours, null],
+      ['Email', contact.email, contact.email ? `mailto:${contact.email}` : null],
+      ['Instagram', contact.instagram, contact.instagram],
+      ['TikTok', contact.tiktok, contact.tiktok],
+      ['YouTube', contact.youtube, contact.youtube],
+    ].filter(([, value]) => value);
+
+    return (
+      <>
+        {intro && <div className="mb-3">{intro}</div>}
+        <div className="rounded-xl border border-[#DCEFE3] bg-[#F7FCF8] p-3.5 text-[13px]">
+          <div className="mb-3 flex items-center gap-2 border-b border-[#DCEFE3] pb-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#09923B] text-white">i</span>
+            <div>
+              <p className="font-bold text-[#14532D]">Data Desa Srigonco</p>
+              <p className="text-[11px] text-[#4B6B57]">Kontak resmi dan jam layanan</p>
+            </div>
+          </div>
+          <div className="space-y-2.5">
+            {rows.map(([label, value, href]) => (
+              <div key={label} className="grid grid-cols-[92px_minmax(0,1fr)] gap-2">
+                <span className="font-semibold text-[#4B6B57]">{label}</span>
+                {href ? (
+                  <a href={href} target="_blank" rel="noreferrer" className="wrap-anywhere text-[#087A32] underline decoration-[#A7DDB8] underline-offset-2 hover:text-[#14532D]">{value}</a>
+                ) : (
+                  <span className="wrap-anywhere text-gray-700">{value}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  }
   const isRawMermaid = /^(graph\s+(TD|TB|BT|RL|LR)|sequenceDiagram|gantt|classDiagram|stateDiagram|erDiagram|journey|mindmap|timeline|pie|requirementDiagram)\b/i.test(cleanText);
 
   if (isRawMermaid) {
@@ -393,7 +487,9 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: widget.welcome_message || 'Halo! Ada yang bisa dibantu? ðŸ‘‹',
+      content:
+        widget.welcome_message ||
+        'Halo! \u{1F44B} Saya Chatbot Desa Srigonco. Saya siap membantu Anda menjawab berbagai pertanyaan seputar informasi Desa Srigonco. Silakan ajukan pertanyaan Anda.',
     },
   ])
   const [inputValue, setInputValue] = useState('')
@@ -426,6 +522,7 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
           message: userMessage,
           widgetId: widget.id,
           conversationId,
+          apiToken: widget.api_token || undefined,
           history: messages.map((m) => ({ role: m.role, content: m.content })),
         }),
       })
@@ -440,7 +537,6 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
           {
             role: 'assistant',
             content: data.response || 'Maaf, tidak ada respon.',
-            sources: data.sources,
           },
         ])
       } else {
@@ -565,23 +661,6 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                       }
                     >
                       <div className="text-sm leading-relaxed wrap-anywhere">{formatMessageContent(msg.content)}</div>
-                      
-                      {isBot && msg.sources && msg.sources.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-gray-100">
-                          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Rujukan Dokumen:</p>
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            {Array.from(new Set(msg.sources.map((src: any) => src.filename || 'Dokumen'))).map((filename, i) => (
-                              <span 
-                                key={i} 
-                                className="inline-flex items-center gap-1 text-[10px] font-medium text-[#07752f] bg-[#09923B]/10 px-2 py-0.5 rounded border border-[#09923B]/20/50 truncate max-w-full"
-                                title={`Dirujuk dari dokumen ${filename}`}
-                              >
-                                📄 {filename}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                     {!isBot && (
                       <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm" style={{ background: 'linear-gradient(135deg, #4D0D0D, #09923B)' }}>
@@ -593,38 +672,6 @@ export default function WidgetPreview({ widget, onClose }: WidgetPreviewProps) {
                   </div>
                 )
               })}
-              
-              {messages.length === 1 && widget.suggested_questions && widget.suggested_questions.length > 0 && (
-                <div className="flex flex-wrap gap-2 ml-10 max-w-[90%] mt-3 animate-in fade-in zoom-in-95 slide-in-from-bottom-3 duration-500 ease-out">
-                  {widget.suggested_questions.map((q, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSend(q)}
-                      className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-left transition-all duration-250 cursor-pointer border"
-                      style={{
-                        borderColor: '#4D0D0D',
-                        color: '#4D0D0D',
-                        backgroundColor: '#FFFFFF',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#F6ECEC';
-                        e.currentTarget.style.borderColor = '#09923B';
-                        e.currentTarget.style.color = '#09923B';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#FFFFFF';
-                        e.currentTarget.style.borderColor = '#4D0D0D';
-                        e.currentTarget.style.color = '#4D0D0D';
-                      }}
-                    >
-                      <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              )}
               
               {loading && (
                 <div className="flex gap-3">

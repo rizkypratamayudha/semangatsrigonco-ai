@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import crypto from 'crypto';
 
 export async function GET() {
   try {
@@ -134,7 +135,7 @@ export async function PUT(request: NextRequest) {
         primaryColor: primary_color || existingWidget.primaryColor,
         suggestedQuestions: Array.isArray(suggested_questions) ? suggested_questions : existingWidget.suggestedQuestions,
         allowedDomains: Array.isArray(allowed_domains) ? allowed_domains : existingWidget.allowedDomains,
-        ...(regenerate_token ? { apiToken: require('crypto').randomUUID() } : {})
+        ...(regenerate_token ? { apiToken: crypto.randomUUID() } : {})
       },
     });
 
@@ -153,7 +154,8 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error('Update widget error:', error);
-    return NextResponse.json({ error: 'Gagal memperbarui widget' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: `Gagal memperbarui widget: ${errorMessage}` }, { status: 500 });
   }
 }
 

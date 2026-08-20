@@ -25,9 +25,6 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
   const [primaryColor, setPrimaryColor] = useState('#25D366')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [sugQuestion1, setSugQuestion1] = useState('')
-  const [sugQuestion2, setSugQuestion2] = useState('')
-  const [sugQuestion3, setSugQuestion3] = useState('')
 
   const supabase = createClient()
 
@@ -41,8 +38,6 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
       return
     }
 
-    const suggestedQuestions = [sugQuestion1.trim(), sugQuestion2.trim(), sugQuestion3.trim()].filter(Boolean)
-
     try {
       const response = await fetch('/api/widgets', {
         method: 'POST',
@@ -54,7 +49,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
           welcome_message: welcomeMessage.trim() || null,
           prompt: prompt.trim() || null,
           primary_color: primaryColor,
-          suggested_questions: suggestedQuestions,
+          suggested_questions: [],
         }),
       })
 
@@ -73,9 +68,6 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
       setWelcomeMessage('')
       setPrompt('')
       setPrimaryColor('#25D366')
-      setSugQuestion1('')
-      setSugQuestion2('')
-      setSugQuestion3('')
     } catch (err) {
       console.error('Insert error:', err)
       toast.error('Terjadi kesalahan koneksi saat membuat widget')
@@ -132,7 +124,7 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
           type="text"
           value={welcomeMessage}
           onChange={(e) => setWelcomeMessage(e.target.value)}
-          placeholder="Contoh: Halo! Ada yang bisa dibantu?"
+          placeholder={'Contoh: Halo! \u{1F44B} Saya Chatbot Desa Srigonco. Saya siap membantu Anda menjawab pertanyaan seputar Desa Srigonco. Silakan ajukan pertanyaan Anda.'}
           className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
         />
         <p className="text-xs text-muted-foreground mt-1.5">Pesan yang muncul saat pertama kali user membuka chat</p>
@@ -144,40 +136,11 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Contoh: Kamu adalah customer service yang ramah dan profesional. Jawab pertanyaan pelanggan tentang produk kami dengan singkat dan jelas..."
+          placeholder="Contoh: Kamu adalah Chatbot Desa Srigonco yang ramah dan profesional. Jawablah pertanyaan warga tentang informasi Desa Srigonco dengan singkat, jelas, dan tegas..."
           rows={4}
           className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all resize-none"
         />
         <p className="text-xs text-muted-foreground mt-1.5">Instruksi untuk AI tentang bagaimana harus merespon</p>
-      </div>
-
-      {/* Pertanyaan Saran */}
-      <div>
-        <label className="block text-sm font-semibold mb-2">Pertanyaan Saran (Maksimal 3)</label>
-        <div className="space-y-3">
-          <input
-            type="text"
-            value={sugQuestion1}
-            onChange={(e) => setSugQuestion1(e.target.value)}
-            placeholder="Saran Pertanyaan 1 (misal: Berapa harga paket layanan?)"
-            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all text-sm"
-          />
-          <input
-            type="text"
-            value={sugQuestion2}
-            onChange={(e) => setSugQuestion2(e.target.value)}
-            placeholder="Saran Pertanyaan 2 (misal: Apakah ada garansi / free trial?)"
-            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all text-sm"
-          />
-          <input
-            type="text"
-            value={sugQuestion3}
-            onChange={(e) => setSugQuestion3(e.target.value)}
-            placeholder="Saran Pertanyaan 3 (misal: Bagaimana cara mendaftar?)"
-            className="w-full px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all text-sm"
-          />
-        </div>
-        <p className="text-xs text-muted-foreground mt-1.5">Pertanyaan cepat yang dapat diklik oleh pengguna saat membuka chat pertama kali</p>
       </div>
 
       {/* Actions */}
@@ -212,9 +175,6 @@ export default function CreateWidgetForm({ userId, onCreated }: CreateWidgetForm
             setWelcomeMessage('')
             setPrompt('')
             setPrimaryColor('#25D366')
-            setSugQuestion1('')
-            setSugQuestion2('')
-            setSugQuestion3('')
             setError(null)
           }}
           className="px-6 py-3 border border-border text-foreground font-semibold rounded-xl hover:bg-muted transition-colors"

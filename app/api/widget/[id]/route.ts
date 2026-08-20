@@ -57,9 +57,9 @@ export async function GET(
   // --- End Security Checks ---
 
   const name = widget.name || 'Srigonco AI';
-  const welcome = widget?.welcomeMessage || 'Halo! Ada yang bisa dibantu? 👋';
+  // Revisi 1: sambutan generik dan terbuka
+  const welcome = widget?.welcomeMessage || 'Halo! \u{1F44B} Saya Chatbot Desa Srigonco. Saya siap membantu Anda menjawab berbagai pertanyaan seputar informasi Desa Srigonco. Silakan ajukan pertanyaan Anda.';
   const color = widget?.primaryColor || '#25D366';
-  const suggestedQuestions = widget?.suggestedQuestions || [];
 
   function hexToRgb(hex: string) {
     const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -73,11 +73,15 @@ export async function GET(
 (function() {
   var WIDGET_ID = '${id}';
   var API_URL = '${request.nextUrl.origin}';
+  var API_TOKEN = ${JSON.stringify(urlToken || '')};
   var WIDGET_NAME = ${JSON.stringify(name)};
   var WELCOME_MSG = ${JSON.stringify(welcome)};
   var PRIMARY_COLOR = '${color}';
-  var SUGGESTED_QUESTIONS = ${JSON.stringify(suggestedQuestions)};
   var LOGO_URL = API_URL + '/logo%20chatbot-bg%20transparan.png';
+
+  function escHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
 
   if (!window.srigoncoEchartsLoaded) {
     window.srigoncoEchartsLoaded = true;
@@ -190,6 +194,15 @@ export async function GET(
       }
       .mbi img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+      .contact-card { margin-top: 10px; padding: 14px; border: 1px solid #DCEFE3; border-radius: 12px; background: #F7FCF8; font-size: 12px; }
+      .contact-title { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid #DCEFE3; color: #14532D; }
+      .contact-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #09923B; color: white; font-weight: 700; }
+      .contact-subtitle { display: block; margin-top: 2px; color: #4B6B57; font-size: 10px; font-weight: 400; }
+      .contact-row { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 8px; margin-top: 9px; line-height: 1.45; }
+      .contact-label { color: #4B6B57; font-weight: 700; }
+      .contact-value { color: #374151; overflow-wrap: anywhere; }
+      .contact-value a { color: #087A32; text-decoration: underline; text-decoration-color: #A7DDB8; text-underline-offset: 2px; }
+
       .typ { display: flex; gap: 4px; padding: 12px 16px; }
       .typ span {
         width: 6px; height: 6px; background: #999; border-radius: 50%;
@@ -232,45 +245,6 @@ export async function GET(
       .inp button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
       .ftr { text-align: center; padding: 0; font-size: 10px; color: #999; flex-shrink: 0; height: 0; }
-      .sug-wrap {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 12px;
-        margin-left: 42px;
-        align-self: flex-start;
-        z-index: 10;
-        max-width: 92%;
-        animation: sugBounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        will-change: transform, opacity;
-      }
-      .sug-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        border-radius: 9999px;
-        padding: 8px 16px;
-        font-size: 11.5px;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        font-weight: 600;
-        text-align: left;
-        line-height: 1.3;
-        width: fit-content;
-        border: 1px solid #4D0D0D;
-        background: #FFFFFF;
-        color: #4D0D0D;
-      }
-      .sug-pill:hover {
-        background: #F6ECEC;
-        border-color: #09923B;
-        color: #09923B;
-      }
-      .sug-pill .sug-icon { transition: color 0.25s ease; flex-shrink: 0; }
-      @keyframes sugBounceIn {
-        from { opacity: 0; transform: translateY(12px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-      }
       @keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.5; }
@@ -279,16 +253,16 @@ export async function GET(
 
     <div id="overlay"></div>
     <div id="bubble">
-      <img src="\${LOGO_URL}" alt="\${WIDGET_NAME}" />
+      <img src="\${LOGO_URL}" alt="\${escHtml(WIDGET_NAME)}" />
     </div>
     <div id="window">
       <div class="hdr">
         <div class="hdr-l">
           <div class="hdr-av">
-            <img src="\${LOGO_URL}" alt="\${WIDGET_NAME}" />
+            <img src="\${LOGO_URL}" alt="\${escHtml(WIDGET_NAME)}" />
           </div>
           <div>
-            <div class="hdr-nm">\${WIDGET_NAME}</div>
+            <div class="hdr-nm">\${escHtml(WIDGET_NAME)}</div>
             <div class="hdr-st" style="display:flex;align-items:center;gap:6px;"><span style="width:6px;height:6px;background:#22C55E;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>Online</div>
           </div>
         </div>
@@ -395,6 +369,66 @@ export async function GET(
     });
   }
 
+  function renderContactCard(text, parentEl) {
+    var contactStart = text.search(/Data Desa Srigonco\\s+Nama kepala desa:/i);
+    if (contactStart === -1) return false;
+    var intro = text.slice(0, contactStart).trim();
+    var contactText = text.slice(contactStart);
+    if (intro) parseFormatting(intro, parentEl);
+    var card = document.createElement('div');
+    card.className = 'contact-card';
+    var title = document.createElement('div');
+    title.className = 'contact-title';
+    title.innerHTML = '<span class="contact-icon">i</span><span><strong>Data Desa Srigonco</strong><small class="contact-subtitle">Kontak resmi dan jam layanan</small></span>';
+    card.appendChild(title);
+    var fields = [
+      ['Kepala Desa', contactText.match(/Nama kepala desa:\\s*(.*?)\\s*Alamat kantor desa:/i)],
+      ['Alamat Kantor', contactText.match(/Alamat kantor desa:\\s*(.*?)\\s*Contact center:/i)],
+      ['Contact Center', contactText.match(/Contact center:\\s*(\\+?[\\d\\s-]+)/i)],
+      ['Jam Layanan', contactText.match(/Jam layanan:\\s*(.*?)\\s*Email:/i)],
+      ['Email', contactText.match(/Email:\\s*([^\\s]+@[^\\s]+)\\s*Instagram:/i)],
+      ['Instagram', contactText.match(/Instagram:\\s*(https?:\\/\\/\\S+)/i)],
+      ['TikTok', contactText.match(/Tiktok:\\s*(https?:\\/\\/\\S+)/i)],
+      ['YouTube', contactText.match(/Youtube:\\s*(https?:\\/\\/\\S+)/i)]
+    ];
+    fields.forEach(function(field) {
+      if (!field[1] || !field[1][1]) return;
+      var row = document.createElement('div');
+      row.className = 'contact-row';
+      var label = document.createElement('span');
+      label.className = 'contact-label';
+      label.textContent = field[0];
+      var value = document.createElement('span');
+      value.className = 'contact-value';
+      var raw = field[1][1].trim();
+      if (/^https?:\\/\\//i.test(raw)) {
+        var link = document.createElement('a');
+        link.href = raw;
+        link.target = '_blank';
+        link.rel = 'noreferrer';
+        link.textContent = raw;
+        value.appendChild(link);
+      } else if (field[0] === 'Email') {
+        var email = document.createElement('a');
+        email.href = 'mailto:' + raw;
+        email.textContent = raw;
+        value.appendChild(email);
+      } else if (field[0] === 'Contact Center') {
+        var phone = document.createElement('a');
+        phone.href = 'tel:' + raw.replace(/[^\\d+]/g, '');
+        phone.textContent = raw;
+        value.appendChild(phone);
+      } else {
+        value.textContent = raw;
+      }
+      row.appendChild(label);
+      row.appendChild(value);
+      card.appendChild(row);
+    });
+    parentEl.appendChild(card);
+    return true;
+  }
+
   function renderChartEl(jsonStr, parentEl) {
     try {
       var config = JSON.parse(jsonStr.trim());
@@ -452,6 +486,81 @@ export async function GET(
     }
   }
 
+  function extractNodeLabel(part) {
+    var t = part.trim();
+    var open = t.indexOf('[');
+    if (open === -1) open = t.indexOf('(');
+    if (open === -1) open = t.indexOf('{');
+    if (open === -1) {
+      return /^[A-Za-z0-9_]{1,3}$/.test(t) ? '' : t;
+    }
+    var openChar = t.charAt(open);
+    var closeChar = openChar === '[' ? ']' : (openChar === '(' ? ')' : '}');
+    var close = t.indexOf(closeChar, open + 1);
+    if (close === -1) return t.slice(open + 1).replace(/"/g, '').trim();
+    var label = t.slice(open + 1, close).replace(/"/g, '').trim();
+    return label || t;
+  }
+
+  function renderMermaidFlow(code, parentEl) {
+    var NL = String.fromCharCode(10);
+    var ARROW = String.fromCharCode(8594); // →
+    var lines = code.split(NL);
+    var steps = [];
+    lines.forEach(function(line) {
+      var l = line.trim();
+      if (!l) return;
+      if (/^(graph|flowchart|sequenceDiagram|classDiagram|erDiagram|gantt|pie|%%|title|accTitle|accDescr)/i.test(l)) return;
+      var hasLabel = l.indexOf('[') !== -1 || l.indexOf('(') !== -1 || l.indexOf('{') !== -1;
+      if (!hasLabel) return;
+      // Buang label edge: "D -- Ya --> E" menjadi "D --> E"
+      var clean = l;
+      var guard = 0;
+      while (guard < 10) {
+        guard++;
+        var dashIdx = clean.indexOf('--');
+        if (dashIdx === -1) break;
+        var arrowIdx = clean.indexOf('-->', dashIdx + 2);
+        if (arrowIdx === -1 || arrowIdx === dashIdx + 2) break;
+        clean = clean.slice(0, dashIdx + 2) + clean.slice(arrowIdx + 2);
+      }
+      var parts = clean.split('-->');
+      var nodes = [];
+      parts.forEach(function(p) {
+        nodes.push(extractNodeLabel(p));
+      });
+      var filtered = nodes.filter(function(n) { return n !== ''; });
+      if (filtered.length > 0) steps.push(filtered.join(' ' + ARROW + ' '));
+    });
+
+    var list = document.createElement('div');
+    list.style.cssText = 'background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:10px 12px;margin:8px 0;';
+    var title = document.createElement('div');
+    title.style.cssText = 'font-size:11px;font-weight:700;color:#92400E;margin-bottom:6px;';
+    title.textContent = '\u{1F4CB} Alur proses:';
+    list.appendChild(title);
+
+    if (steps.length === 0) {
+      var empty = document.createElement('div');
+      empty.style.cssText = 'font-size:11px;color:#92400E;';
+      empty.textContent = 'Diagram tidak dapat ditampilkan.';
+      list.appendChild(empty);
+    } else {
+      steps.slice(0, 12).forEach(function(step) {
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:6px;font-size:11.5px;line-height:1.5;color:#78350F;margin-bottom:4px;word-break:break-word;';
+        var dot = document.createElement('span');
+        dot.style.cssText = 'width:5px;height:5px;border-radius:50%;background:#F59E0B;margin-top:5px;flex-shrink:0;';
+        var txt = document.createElement('span');
+        txt.textContent = step;
+        row.appendChild(dot);
+        row.appendChild(txt);
+        list.appendChild(row);
+      });
+    }
+    parentEl.appendChild(list);
+  }
+
   function setContent(el, text) {
     var TICK3 = String.fromCharCode(96,96,96);
     var mermaidTag = TICK3 + 'mermaid';
@@ -474,18 +583,14 @@ export async function GET(
         renderChartEl(jsonCode, el);
       } else if (part.startsWith(mermaidTag) && part.endsWith(TICK3)) {
         var code = part.slice(mermaidTag.length).replace(new RegExp(TICK3 + '$'), '').trim();
-        var block = document.createElement('div');
-        block.style.cssText = 'background:#f4f4f4;padding:12px;border-radius:8px;font-size:11px;overflow-x:auto;margin:8px 0;border:1px solid #e5e7eb;white-space:pre-wrap;';
-        block.textContent = code;
-        el.appendChild(block);
+        renderMermaidFlow(code, el);
       } else if (part) {
-        parseFormatting(part, el);
+        if (!renderContactCard(part, el)) parseFormatting(part, el);
       }
     });
   }
 
   function addMsg(text, isUser) {
-    removeSug();
     if (isUser) {
       var wrap = document.createElement('div');
       wrap.style.cssText = 'display:flex;justify-content:flex-end;';
@@ -531,37 +636,7 @@ export async function GET(
     if (t) t.remove();
   }
 
-  function removeSug() {
-    var sug = shadow.getElementById('sug-wrap');
-    if (sug) {
-      sug.style.transition = 'opacity 0.25s ease-out, transform 0.25s ease-out';
-      sug.style.opacity = '0';
-      sug.style.transform = 'translateY(5px)';
-      setTimeout(function() {
-        sug.remove();
-      }, 250);
-    }
-  }
-
   addMsg(WELCOME_MSG, false);
-
-  if (SUGGESTED_QUESTIONS && SUGGESTED_QUESTIONS.length > 0) {
-    var sugWrap = document.createElement('div');
-    sugWrap.className = 'sug-wrap';
-    sugWrap.id = 'sug-wrap';
-    SUGGESTED_QUESTIONS.forEach(function(q) {
-      var pill = document.createElement('button');
-      pill.className = 'sug-pill';
-      pill.innerHTML = '<svg class="sug-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg><span>' + q + '</span>';
-      pill.onclick = function() {
-        inp.value = q;
-        doSend();
-      };
-      sugWrap.appendChild(pill);
-    });
-    msgs.appendChild(sugWrap);
-    msgs.scrollTop = msgs.scrollHeight;
-  }
 
   bubble.onclick = function() {
     bubble.style.display = 'none';
@@ -599,9 +674,12 @@ export async function GET(
     history.push({ role: 'user', content: text });
 
     try {
+      // Keamanan: sertakan API token pada setiap request chat
+      var chatHeaders = { 'Content-Type': 'application/json' };
+      if (API_TOKEN) chatHeaders['Authorization'] = 'Bearer ' + API_TOKEN;
       var res = await fetch(API_URL + '/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: chatHeaders,
         body: JSON.stringify({ 
           widgetId: WIDGET_ID, 
           message: text,
