@@ -123,7 +123,7 @@ async function generateWithOpenRouter(
   const apiKey = process.env.OPENROUTERGEMMA || process.env.OPENROUTER_API_KEY;
   if (!apiKey) return null;
 
-  const model = process.env.OPENROUTER_MODEL || 'google/gemma-4-26b-a4b-it:free';
+  const model = process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3-ultra-550b-a55b:free';
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
