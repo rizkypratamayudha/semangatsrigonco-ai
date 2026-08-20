@@ -100,7 +100,7 @@ export default function UploadWidget({ widgetId, onUploadComplete }: UploadWidge
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0">
       {/* Drop Zone */}
       <div
         onDragOver={handleDragOver}
@@ -108,7 +108,7 @@ export default function UploadWidget({ widgetId, onUploadComplete }: UploadWidge
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={`
-          relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer
+          relative border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer
           transition-all duration-200
           ${isDragging
             ? 'border-[#09923B] bg-[#09923B]/10'
@@ -143,8 +143,8 @@ export default function UploadWidget({ widgetId, onUploadComplete }: UploadWidge
             )}
           </div>
 
-          <div>
-            <p className="text-lg font-semibold mb-1">
+          <div className="min-w-0">
+            <p className="text-base sm:text-lg font-semibold mb-1 wrap-break-word">
               {uploading ? 'Mengupload...' : 'Drag & drop file di sini'}
             </p>
             <p className="text-sm text-muted-foreground">

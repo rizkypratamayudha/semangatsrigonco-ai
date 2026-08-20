@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Srigonco AI - Asisten Digital Desa</title>
+    <link rel="icon" href="./asset/image/logo%20chatbot-bg%20transparan.png" type="image/png">
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Lottie Player -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <!-- Typed.js for typing animation -->
+    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+</head>
+
+<body>
+    <!-- Background overlay provided in CSS -->
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon" style="background-color: transparent;">
+                <img src="./asset/image/logo%20chatbot-bg%20transparan.png" alt="Srigonco AI Logo"
+                    style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <span class="logo-text">Srigonco <span class="text-yellow">AI</span></span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="hero-section">
+        <div class="hero-content">
+            <div class="badge animate-slide-up">
+                <svg class="badge-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M5 5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21L12 16L5 21V5Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Layanan Digital Desa Srigonco
+            </div>
+
+            <h1 class="title">
+                <span id="typed-title"></span>
+            </h1>
+
+            <p class="description animate-slide-up" style="animation-delay: 200ms; animation-fill-mode: both;">
+                Asisten Cerdas Desa Srigonco 24/7 siap membantu Anda. Dapatkan informasi pemerintahan, pelayanan publik,
+                dan potensi desa dengan cepat dan mudah.
+            </p>
+
+            <div class="button-group animate-slide-up" style="animation-delay: 300ms; animation-fill-mode: both;">
+                <a href="javascript:void(0);" class="btn btn-primary" id="btn-open-chat" onclick="openChatWidget()">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15A2 2 0 0 1 19 17H7L3 21V5A2 2 0 0 1 5 3H19A2 2 0 0 1 21 5V15Z"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Mulai Chat Sekarang
+                </a>
+                <!-- <a href="#" class="btn btn-secondary">
+                    Pelajari Lebih Lanjut
+                    <svg class="btn-icon-right" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a> -->
+            </div>
+        </div>
+
+        <div class="hero-image animate-slide-in-right" style="animation-delay: 400ms; animation-fill-mode: both;">
+            <!-- Lottie Animation replaces the image -->
+            <lottie-player src="./asset/image/Robot_Chatbot.json" background="transparent" speed="1" class="hero-lottie"
+                loop autoplay>
+            </lottie-player>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Typed('#typed-title', {
+                strings: ['Srigonco AI<br><span class="highlight">Chatbot</span>'],
+                typeSpeed: 60,
+                backSpeed: 40,
+                backDelay: 2000,
+                loop: true,
+                showCursor: true,
+                cursorChar: '|',
+                autoInsertCss: true
+            });
+        });
+
+        function openChatWidget() {
+            var host = document.getElementById('chatbot-widget-host');
+            if (host && host.shadowRoot) {
+                var bubble = host.shadowRoot.getElementById('bubble');
+                var win = host.shadowRoot.getElementById('window');
+                var inp = host.shadowRoot.getElementById('inp');
+                if (bubble) {
+                    bubble.click();
+                    return;
+                }
+                // Fallback: directly show the window
+                if (win) {
+                    win.style.display = 'flex';
+                    if (bubble) bubble.style.display = 'none';
+                    if (inp) inp.focus();
+                    return;
+                }
+            }
+            // Widget belum loaded, coba tunggu sebentar lalu retry
+            setTimeout(function () {
+                var host2 = document.getElementById('chatbot-widget-host');
+                if (host2 && host2.shadowRoot) {
+                    var bubble2 = host2.shadowRoot.getElementById('bubble');
+                    if (bubble2) {
+                        bubble2.click();
+                        return;
+                    }
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+<script src="https://srigonco-chatbot.chattoko.biz.id/api/widget/e0bd1634-3326-4aac-9e4d-51b6f2949829" async></script>
+
+</html>

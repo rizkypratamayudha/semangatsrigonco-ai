@@ -43,13 +43,9 @@ export default function WidgetList({ userId }: { userId: string }) {
   const [editWelcomeMessage, setEditWelcomeMessage] = useState('')
   const [editPrompt, setEditPrompt] = useState('')
   const [editPrimaryColor, setEditPrimaryColor] = useState('')
-  const [editSugQuestion1, setEditSugQuestion1] = useState('')
-  const [editSugQuestion2, setEditSugQuestion2] = useState('')
-  const [editSugQuestion3, setEditSugQuestion3] = useState('')
   const [editAllowedDomains, setEditAllowedDomains] = useState('')
   const [regenerateToken, setRegenerateToken] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
-  const [generatingQuestions, setGeneratingQuestions] = useState(false)
 
   const supabase = createClient()
 
@@ -207,10 +203,6 @@ export default function WidgetList({ userId }: { userId: string }) {
     setEditWelcomeMessage(widget.welcome_message || '')
     setEditPrompt(widget.prompt || '')
     setEditPrimaryColor(widget.primary_color || '#25D366')
-    const sug = widget.suggested_questions || []
-    setEditSugQuestion1(sug[0] || '')
-    setEditSugQuestion2(sug[1] || '')
-    setEditSugQuestion3(sug[2] || '')
     setEditAllowedDomains((widget.allowed_domains || []).join('\n'))
     setRegenerateToken(false)
   }
@@ -219,8 +211,6 @@ export default function WidgetList({ userId }: { userId: string }) {
     e.preventDefault()
     if (!editWidget) return
     setEditLoading(true)
-
-    const sug = [editSugQuestion1.trim(), editSugQuestion2.trim(), editSugQuestion3.trim()].filter(Boolean)
 
     try {
       const res = await fetch('/api/widgets', {
@@ -232,7 +222,7 @@ export default function WidgetList({ userId }: { userId: string }) {
           welcome_message: editWelcomeMessage.trim() || null,
           prompt: editPrompt.trim() || null,
           primary_color: editPrimaryColor,
-          suggested_questions: sug,
+          suggested_questions: [],
           allowed_domains: editAllowedDomains.split('\n').map(d => d.trim()).filter(Boolean),
           regenerate_token: regenerateToken
         }),
@@ -251,35 +241,6 @@ export default function WidgetList({ userId }: { userId: string }) {
       toast.error('Terjadi kesalahan koneksi saat menyimpan perubahan')
     } finally {
       setEditLoading(false)
-    }
-  }
-
-  async function handleGenerateSugQuestions() {
-    if (!editWidget) return
-    setGeneratingQuestions(true)
-    try {
-      const response = await fetch(`/api/widgets/${editWidget.id}/generate-questions`, {
-        method: 'POST'
-      })
-      if (response.ok) {
-        const data = await response.json()
-        if (data.questions && Array.isArray(data.questions)) {
-          setEditSugQuestion1(data.questions[0] || '')
-          setEditSugQuestion2(data.questions[1] || '')
-          setEditSugQuestion3(data.questions[2] || '')
-          toast.success('Pertanyaan saran berhasil digenerate menggunakan AI!')
-        } else {
-          toast.error('Format data dari AI tidak valid.')
-        }
-      } else {
-        const data = await response.json()
-        toast.error(data.error || 'Gagal digenerate. Pastikan Anda telah mengunggah dokumen di widget ini.')
-      }
-    } catch (err) {
-      console.error(err)
-      toast.error('Terjadi kesalahan koneksi.')
-    } finally {
-      setGeneratingQuestions(false)
     }
   }
 
@@ -526,14 +487,14 @@ export default function WidgetList({ userId }: { userId: string }) {
             )}
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
             {filteredWidgets.map((widget, index) => {
               const isFirst = index === 0
               return (
                 <div
                   key={widget.id}
                   id={isFirst ? 'tour-widget-card' : undefined}
-                  className={`bg-white rounded-2xl border transition-all hover:shadow-md ${
+                  className={`min-w-0 bg-white rounded-2xl border transition-all hover:shadow-md ${
                     selectedWidgets.includes(widget.id) ? 'border-[#09923B] ring-2 ring-[#09923B]/20' : 'border-border'
                   }`}
                 >
@@ -595,7 +556,7 @@ export default function WidgetList({ userId }: { userId: string }) {
                       </div>
 
                       {/* Actions - separate row on mobile */}
-                      <div className="flex items-center justify-start sm:justify-end gap-1.5 sm:gap-2 shrink-0 flex-wrap">
+                      <div className="flex items-center justify-start sm:justify-end gap-1.5 sm:gap-2 flex-wrap">
                         <button
                           onClick={() => setExpandedWidgetId(expandedWidgetId === widget.id ? null : widget.id)}
                           id={isFirst ? 'tour-doc-manage' : undefined}
@@ -674,11 +635,11 @@ export default function WidgetList({ userId }: { userId: string }) {
                   {/* Expanded Document Management Section */}
                   {expandedWidgetId === widget.id && (
                     <div className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-border animate-in fade-in slide-in-from-top duration-300">
-                      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
+                      <div className="flex flex-col gap-4 sm:gap-5 min-w-0">
                         {/* Upload Widget */}
-                        <div className="lg:flex-2 bg-gray-50/40 p-4 sm:p-5 rounded-2xl border border-dashed border-gray-200">
+                        <div className="min-w-0 bg-gray-50/40 p-4 sm:p-5 rounded-2xl border border-dashed border-gray-200">
                           <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
-                            <svg className="w-4.5 h-4.5 text-[#09923B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-4.5 h-4.5 text-[#09923B] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
                             Unggah Dokumen Baru
@@ -694,17 +655,19 @@ export default function WidgetList({ userId }: { userId: string }) {
                           />
                         </div>
                         {/* Document List */}
-                        <div className="lg:flex-1 bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col min-h-55">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
-                            <svg className="w-4.5 h-4.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="min-w-0 bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5 shrink-0">
+                            <svg className="w-4.5 h-4.5 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                             </svg>
                             Daftar Dokumen
                           </h4>
-                          <DocumentList
-                            widgetId={widget.id}
-                            refreshTrigger={refreshTriggers[widget.id] || 0}
-                          />
+                          <div className="min-h-0 max-h-105 overflow-y-auto overscroll-contain pr-1">
+                            <DocumentList
+                              widgetId={widget.id}
+                              refreshTrigger={refreshTriggers[widget.id] || 0}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -946,58 +909,6 @@ export default function WidgetList({ userId }: { userId: string }) {
                   rows={3}
                   className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all resize-none"
                 />
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xs font-semibold text-gray-600">Pertanyaan Saran (Maksimal 3)</label>
-                  <button
-                    type="button"
-                    onClick={handleGenerateSugQuestions}
-                    disabled={generatingQuestions}
-                    className="text-xs text-[#09923B] hover:text-[#07752f] font-semibold flex items-center gap-1 disabled:opacity-50 cursor-pointer select-none"
-                  >
-                    {generatingQuestions ? (
-                      <>
-                        <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                        Menganalisis Dokumen...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Generate dengan AI âœ¨
-                      </>
-                    )}
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={editSugQuestion1}
-                    onChange={(e) => setEditSugQuestion1(e.target.value)}
-                    placeholder="Saran Pertanyaan 1"
-                    className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
-                  />
-                  <input
-                    type="text"
-                    value={editSugQuestion2}
-                    onChange={(e) => setEditSugQuestion2(e.target.value)}
-                    placeholder="Saran Pertanyaan 2"
-                    className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
-                  />
-                  <input
-                    type="text"
-                    value={editSugQuestion3}
-                    onChange={(e) => setEditSugQuestion3(e.target.value)}
-                    placeholder="Saran Pertanyaan 3"
-                    className="w-full px-3 py-2 bg-muted border border-border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#09923B] focus:border-transparent transition-all"
-                  />
-                </div>
               </div>
 
               {/* Security Section */}
