@@ -91,6 +91,16 @@ export async function GET(
     document.head.appendChild(sc);
   }
 
+  if (!window.srigoncoMermaidPromise) {
+    window.srigoncoMermaidPromise = new Promise(function(resolve, reject) {
+      var ms = document.createElement('script');
+      ms.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
+      ms.onload = function() { resolve(window.mermaid); };
+      ms.onerror = reject;
+      document.head.appendChild(ms);
+    });
+  }
+
   var host = document.createElement('div');
   host.id = 'chatbot-widget-host';
   host.style.cssText = 'all:initial;position:fixed !important;bottom:24px !important;right:24px !important;z-index:99999 !important;font-family:system-ui,-apple-system,sans-serif;display:block !important;visibility:visible !important;';
@@ -442,10 +452,10 @@ export async function GET(
         title: {
           text: config.title || '',
           left: 'center',
-          textStyle: { fontSize: 12, fontWeight: 'bold', color: '#1f2937' }
+          textStyle: { fontSize: 13, fontWeight: 'bold', color: '#1f2937' }
         },
         tooltip: { trigger: isPie ? 'item' : 'axis' },
-        grid: isPie ? undefined : { left: '3%', right: '4%', bottom: '18%', containLabel: true },
+        grid: isPie ? undefined : { left: '3%', right: '4%', bottom: '15%', containLabel: true },
         xAxis: isPie ? undefined : {
           type: 'category',
           data: config.categories || [],
@@ -456,13 +466,20 @@ export async function GET(
           name: config.title || 'Data',
           type: 'pie',
           radius: '55%',
-          data: config.series || []
+          data: config.series || [],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0,0,0,0.5)'
+            }
+          }
         }] : (config.series || []).map(function(s) {
           return {
             name: s.name || 'Data',
             type: config.type === 'line' ? 'line' : 'bar',
             data: s.data || [],
-            itemStyle: { color: PRIMARY_COLOR, borderRadius: [4, 4, 0, 0] },
+            itemStyle: { color: '#4D0D0D', borderRadius: [4, 4, 0, 0] },
             smooth: true
           };
         })
@@ -562,7 +579,44 @@ export async function GET(
     parentEl.appendChild(list);
   }
 
-  function setContent(el, text) {
+  function sanitizeMermaid(chart) {
+    var NL = String.fromCharCode(10);
+    var normalized = chart.replace(/\\n/g, NL).trim();
+    if (/^(pie|xychart|gantt|sequence|mindmap|timeline|class|er)/i.test(normalized)) return normalized;
+    return normalized
+      .replace(/;\\s*(?=\\b\\w+)/g, ';' + NL)
+      .split(NL)
+      .map(function(line) {
+        if (/^\\s*(title|accTitle|accDescr|%%)\\b/i.test(line)) return line;
+        return line.replace(/(\\b\\w+)\\s*\\[([^\"]+)\]/g, '$1["$2"]')
+          .replace(/(\\b\\w+)\\s*\\{([^}]+)\\}/g, '$1{"$2"}')
+          .replace(/(\\b\\w+)\\s*\\(([^\"]+)\\)/g, '$1("$2")');
+      })
+      .join(NL);
+  }
+
+  async function renderMermaidDiagram(code, parentEl) {
+    var box = document.createElement('div');
+    box.style.cssText = 'width:100%;margin:8px 0;padding:12px 8px;background:#fff;border:1px solid #f3f4f6;border-radius:16px;display:flex;justify-content:center;overflow-x:auto;';
+    parentEl.appendChild(box);
+    try {
+      var mermaid = await window.srigoncoMermaidPromise;
+      mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose', fontFamily: 'inherit' });
+      var id = 'embed-mermaid-' + Math.floor(Math.random() * 1000000);
+      var rendered;
+      try {
+        rendered = await mermaid.render(id, sanitizeMermaid(code));
+      } catch (firstError) {
+        rendered = await mermaid.render(id + '-raw', code.trim());
+      }
+      box.innerHTML = rendered.svg;
+    } catch (error) {
+      box.remove();
+      renderMermaidFlow(code, parentEl);
+    }
+  }
+
+  async function setContent(el, text) {
     var TICK3 = String.fromCharCode(96,96,96);
     var mermaidTag = TICK3 + 'mermaid';
     var chartTag = TICK3 + 'chart';
@@ -578,20 +632,21 @@ export async function GET(
 
     var re = new RegExp('(' + TICK3 + '(?:mermaid|chart)[^]*?' + TICK3 + ')', 'g');
     var parts = processedText.split(re);
-    parts.forEach(function(part) {
+    for (var partIndex = 0; partIndex < parts.length; partIndex++) {
+      var part = parts[partIndex];
       if (part.startsWith(chartTag) && part.endsWith(TICK3)) {
         var jsonCode = part.slice(chartTag.length).replace(new RegExp(TICK3 + '$'), '').trim();
         renderChartEl(jsonCode, el);
       } else if (part.startsWith(mermaidTag) && part.endsWith(TICK3)) {
         var code = part.slice(mermaidTag.length).replace(new RegExp(TICK3 + '$'), '').trim();
-        renderMermaidFlow(code, el);
+        await renderMermaidDiagram(code, el);
       } else if (part) {
         if (!renderContactCard(part, el)) parseFormatting(part, el);
       }
-    });
+    }
   }
 
-  function addMsg(text, isUser) {
+  async function addMsg(text, isUser) {
     if (isUser) {
       var wrap = document.createElement('div');
       wrap.style.cssText = 'display:flex;justify-content:flex-end;';
@@ -611,7 +666,7 @@ export async function GET(
       wrap.appendChild(ic);
       wrap.appendChild(m);
       msgs.appendChild(wrap);
-      setContent(m, text);
+      await setContent(m, text);
     }
     msgs.scrollTop = msgs.scrollHeight;
   }
