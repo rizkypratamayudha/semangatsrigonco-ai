@@ -111,6 +111,80 @@ function isVisualQuery(text: string): boolean {
   return /\b(flow(?:chart)?|diagram|diagramkan|bagan|struktur organisasi|peta konsep|grafik|chart|visualisasi|alur)\b/i.test(text);
 }
 
+type ModelMessage = {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+};
+
+async function generateWithOpenRouter(
+  messages: ModelMessage[],
+  systemInstructionText: string
+): Promise<string | null> {
+  const apiKey = process.env.OPENROUTERGEMMA || process.env.OPENROUTER_API_KEY;
+  if (!apiKey) return null;
+
+  const model = process.env.OPENROUTER_MODEL || 'google/gemma-3-27b-it:free';
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://srigonco-chatbot-two.vercel.app',
+      'X-Title': 'Srigonco AI',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: systemInstructionText },
+        ...messages,
+      ],
+      temperature: 0.7,
+      max_tokens: 2048,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('OpenRouter API error:', errorData.error?.message || response.statusText);
+    return null;
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content;
+  return typeof content === 'string' && content.trim() ? content.trim() : null;
+}
+
+async function generateWithGemini(
+  contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }>,
+  systemInstructionText: string
+): Promise<string | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents,
+        systemInstruction: { parts: [{ text: systemInstructionText }] },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('Gemini fallback API error:', errorData.error?.message || response.statusText);
+    return null;
+  }
+
+  const data = await response.json();
+  const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  return typeof content === 'string' && content.trim() ? content.trim() : null;
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     headers: {
@@ -620,59 +694,30 @@ The user's query is outside the scope of your documents. You are strictly FORBID
       },
     ];
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY is not defined');
+    const openRouterMessages: ModelMessage[] = formattedHistory.map((msg) => ({
+      role: msg.role === 'model' ? 'assistant' : 'user',
+      content: msg.parts.map((part) => part.text).join('\n'),
+    }));
+    openRouterMessages.push({ role: 'user', content: message });
+
+    let assistantMessage: string | null = null;
+    try {
+      assistantMessage = await generateWithOpenRouter(openRouterMessages, systemInstructionText);
+    } catch (error) {
+      console.error('OpenRouter request failed, using Gemini fallback:', error);
     }
 
-    // Call Gemini API
-    const aiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents,
-          systemInstruction: {
-            parts: [{ text: systemInstructionText }]
-          },
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2048,
-          }
-        }),
+    if (!assistantMessage) {
+      try {
+        assistantMessage = await generateWithGemini(contents, systemInstructionText);
+      } catch (error) {
+        console.error('Gemini fallback request failed:', error);
       }
-    );
-
-    if (!aiResponse.ok) {
-      const errorData = await aiResponse.json().catch(() => ({}));
-      console.error('AI API error:', errorData.error?.message || aiResponse.statusText);
-      
-      // Save fallback response
-      if (currentConversationId) {
-        await prisma.messages.create({
-          data: {
-            conversation_id: currentConversationId,
-            role: 'assistant',
-            content: welcomeMessage,
-          },
-        }).catch(() => {});
-      }
-
-      return NextResponse.json({
-        response: welcomeMessage,
-        sources: [],
-        conversationId: currentConversationId,
-      }, {
-        headers: { 'Access-Control-Allow-Origin': '*' },
-      });
     }
 
-    const aiData = await aiResponse.json();
-    let assistantMessage =
-      aiData.candidates?.[0]?.content?.parts?.[0]?.text || welcomeMessage;
+    if (!assistantMessage) {
+      assistantMessage = welcomeMessage;
+    }
 
     // Revisi 4: setiap kali jawaban tidak ditemukan, arahkan user ke pemerintah desa (tanpa menyebut dokumen)
     if (
