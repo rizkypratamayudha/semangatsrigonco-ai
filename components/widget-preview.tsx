@@ -430,6 +430,7 @@ function formatMessageContent(text: string) {
       processedText += TICK3;
     }
   }
+  
 
   // Split by mermaid or chart code blocks
   const sections = processedText.split(/(```\s*(?:mermaid|chart)[\s\S]*?```)/gi);
