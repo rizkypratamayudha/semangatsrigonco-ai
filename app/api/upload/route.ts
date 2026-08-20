@@ -119,6 +119,13 @@ async function processInBackground(
     const parsed = await parseFile(buffer, fileType);
     const text = parsed.text;
 
+    if (fileType === 'application/pdf') {
+      console.info('PDF extraction quality:', {
+        documentId: docId,
+        ...(parsed.metadata || {}),
+      });
+    }
+
     await storeChunks(docId, text, supabase);
   } catch (error) {
     console.error('Background processing error:', error);
