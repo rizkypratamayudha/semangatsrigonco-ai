@@ -414,7 +414,7 @@ function formatMessageContent(text: string) {
       </>
     );
   }
-  const isRawMermaid = /^(graph\s+(TD|TB|BT|RL|LR)|sequenceDiagram|gantt|classDiagram|stateDiagram|erDiagram|journey|mindmap|timeline|pie|requirementDiagram)\b/i.test(cleanText);
+  const isRawMermaid = /^(graph\s+(TD|TB|BT|RL|LR)|flowchart\s+(TD|TB|BT|RL|LR)|sequenceDiagram|gantt|classDiagram|stateDiagram(?:-v2)?|erDiagram|journey|mindmap|timeline|pie|xychart|requirementDiagram)\b/i.test(cleanText);
 
   if (isRawMermaid) {
     return <Mermaid chart={cleanText} />;
@@ -432,20 +432,20 @@ function formatMessageContent(text: string) {
   }
 
   // Split by mermaid or chart code blocks
-  const sections = processedText.split(/(```(?:mermaid|chart)[\s\S]*?```)/g);
+  const sections = processedText.split(/(```\s*(?:mermaid|chart)[\s\S]*?```)/gi);
 
   return sections.map((section, secIndex) => {
-    if (section.startsWith('```mermaid') && section.endsWith('```')) {
+    if (/^```\s*mermaid/i.test(section) && section.endsWith('```')) {
       const chartCode = section
-        .replace(/^```mermaid\s*/, '')
+        .replace(/^```\s*mermaid\s*/i, '')
         .replace(/```$/, '')
         .trim();
       return <Mermaid key={`mermaid-${secIndex}`} chart={chartCode} />;
     }
 
-    if (section.startsWith('```chart') && section.endsWith('```')) {
+    if (/^```\s*chart/i.test(section) && section.endsWith('```')) {
       const chartJson = section
-        .replace(/^```chart\s*/, '')
+        .replace(/^```\s*chart\s*/i, '')
         .replace(/```$/, '')
         .trim();
       return <ChartComponent key={`chart-${secIndex}`} jsonStr={chartJson} />;
